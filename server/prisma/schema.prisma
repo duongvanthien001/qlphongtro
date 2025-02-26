@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model bills {
+  id               Int           @id @default(autoincrement())
+  room_id          Int?
+  status           bills_status? @default(unpaid)
+  total            Decimal?      @db.Decimal(10, 2)
+  month            DateTime?     @db.Date
+  payment_date     DateTime?     @db.Date
+  electricity_cost Decimal?      @db.Decimal(10, 2)
+  room_cost        Decimal?      @db.Decimal(10, 2)
+  garbage_cost     Decimal?      @db.Decimal(10, 2)
+  extra_cost       Decimal?      @db.Decimal(10, 2)
+  rooms            rooms?        @relation(fields: [room_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "bills_ibfk_1")
+
+  @@index([room_id], map: "room_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model contracts {
+  id         Int       @id @default(autoincrement())
+  room_id    Int?
+  tenant_id  Int?
+  start_date DateTime  @db.Date
+  end_date   DateTime? @db.Date
+  deposit    Decimal?  @db.Decimal(10, 2)
+  rooms      rooms?    @relation(fields: [room_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "contracts_ibfk_1")
+  tenants    tenants?  @relation(fields: [tenant_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "contracts_ibfk_2")
+
+  @@index([room_id], map: "room_id")
+  @@index([tenant_id], map: "tenant_id")
+}
+
+model owners {
+  id    Int     @id @default(autoincrement())
+  name  String  @db.VarChar(100)
+  phone String  @db.VarChar(15)
+  email String? @db.VarChar(100)
+  rooms rooms[]
+  users users[]
+}
+
+model rooms {
+  id            Int           @id @default(autoincrement())
+  name          String?       @db.VarChar(255)
+  area          Float?        @db.Float
+  price         Float?        @db.Float
+  status        rooms_status? @default(available)
+  number_people Int?
+  owner_id      Int?
+  bills         bills[]
+  contracts     contracts[]
+  owners        owners?       @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "rooms_ibfk_1")
+  tenants       tenants[]
+
+  @@index([owner_id], map: "owner_id")
+}
+
+model tenants {
+  id        Int         @id @default(autoincrement())
+  name      String?     @db.VarChar(255)
+  age       Int?
+  phone     Int?
+  room_id   Int?
+  id_card   String?     @unique(map: "id_card") @db.VarChar(20)
+  address   String?     @db.Text
+  contracts contracts[]
+  rooms     rooms?      @relation(fields: [room_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "tenants_ibfk_1")
+  users     users[]
+
+  @@index([room_id], map: "room_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id         Int        @id @default(autoincrement())
+  username   String     @unique(map: "username") @db.VarChar(255)
+  password   String?    @db.VarChar(255)
+  role       users_role
+  tenant_id  Int?
+  owner_id   Int?
+  created_at DateTime   @default(now()) @db.Timestamp(0)
+  email      String?    @unique(map: "email") @db.VarChar(100)
+  tenants    tenants?   @relation(fields: [tenant_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "users_ibfk_1")
+  owners     owners?    @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "users_ibfk_2")
+
+  @@index([owner_id], map: "owner_id")
+  @@index([tenant_id], map: "tenant_id")
+}
+
+enum bills_status {
+  paid
+  unpaid
+}
+
+enum users_role {
+  owner
+  tenant
+}
+
+enum rooms_status {
+  available
+  occupied
+}

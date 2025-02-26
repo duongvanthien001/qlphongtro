@@ -1,0 +1,35 @@
+/* Header.css */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav-items {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-brand {
+  margin-left: 400px;
+}
+
+.nav-link {
+  /* margin-left: 100px; */
+}
+
+button {
+  display: flex;
+  align-items: center;
+}
+
+button svg {
+  margin-right: 5px;
+}
