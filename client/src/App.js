@@ -13,6 +13,7 @@ import UpdateTenant from "./pages/Admin/UpdateTenant";
 import CreateNewTenant from "./pages/Admin/CreateNewTenant";
 import CreateNewRoom from "./pages/Admin/CreateNewRoom";
 import ListUser from "./pages/Admin/ListUser";
+import CreateNewUser from "./pages/Admin/CreateNewUser";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="update-room/:id" element={<UpdateRoom />} />
           <Route path="update-tenant" element={<UpdateTenant />} />
           <Route path="create-new-tenant" element={<CreateNewTenant />} />
+          <Route path="add-user" element={<CreateNewUser />} />
         </Route>
       </Routes>
     </BrowserRouter>

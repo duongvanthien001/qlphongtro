@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button, Container } from "react-bootstrap";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { getTenants } from "../../services/tenantService";
 
 const ListTenant = () => {
-  const people = [
-    { id: 1, name: "Nguyễn Văn A", phone: "0987654321", age: 25 },
-    { id: 2, name: "Trần Thị B", phone: "0123456789", age: 30 },
-    { id: 3, name: "Lê Minh C", phone: "0234567890", age: 22 },
-  ];
+  const [tenants, setTenants] = useState([]);
+
+  useEffect(() => {
+    getTenants()
+      .then((tenants) => setTenants(tenants))
+      .catch((error) => console.log(error));
+  }, []);
 
   return (
     <Container>
@@ -26,17 +29,21 @@ const ListTenant = () => {
             <th>Họ tên</th>
             <th>Số điện thoại</th>
             <th>Phòng</th>
-            <th>Tuổi</th> {/* Thay "Trạng thái" bằng "Tuổi" */}
-            <th>Hành động</th> {/* Cột hành động với nút Sửa và Xóa */}
+            <th>Tuổi</th>
+            <th>CCCD</th>
+            <th>Địa chỉ</th>
+            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {people.map((person) => (
-            <tr key={person.id}>
-              <td>{person.name}</td>
-              <td>{person.phone}</td>
-              <td></td>
-              <td>{person.age}</td>
+          {tenants.map((tenant) => (
+            <tr key={tenant.id}>
+              <td>{tenant.name}</td>
+              <td>{tenant.phone}</td>
+              <td>{tenant.rooms.name}</td>
+              <td>{tenant.age}</td>
+              <td>{tenant.id_card}</td>
+              <td>{tenant.address}</td>
               <td>
                 <Link to="/admin/update-tenant">
                   <Button variant="warning" className="mr-2">

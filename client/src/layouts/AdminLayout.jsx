@@ -9,7 +9,7 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="d-flex">
+    <div className="d-flex vh-100">
       <SidebarAdmin />
       <div className="overflow-y-auto flex-grow-1 flex-shrink-1 w-100">
         <Outlet />

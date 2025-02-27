@@ -13,7 +13,7 @@ const analystController = {
         id: true,
       },
       where: {
-        status: "occupied",
+        status: "available",
       },
     });
 

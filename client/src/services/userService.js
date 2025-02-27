@@ -16,3 +16,7 @@ export const getUsers = async (options) => {
     )}`
   );
 };
+
+export const createUser = async (body) => {
+  return axios.post("/users/create", body);
+};

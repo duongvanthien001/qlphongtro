@@ -77,7 +77,7 @@ export default function Dashboard() {
           {rooms.map((room) => (
             <tr key={room.id}>
               <td>{room.name}</td>
-              <td>{room.number_people}</td>
+              <td>{room.tenants.length}</td>
               <td>
                 <Button variant="light" className="btn-sm">
                   {room.status === "available" ? "Trống" : "Đã thuê"}

@@ -24,7 +24,7 @@ const roomController = {
       include: {
         tenants: true,
         contracts: true,
-        owners: true,
+        users: true,
       },
       orderBy,
     });
@@ -54,8 +54,8 @@ const roomController = {
       },
       include: {
         tenants: true,
-        owners: true,
         contracts: true,
+        users: true,
       },
     });
 
@@ -64,7 +64,7 @@ const roomController = {
 
   create: async (req, res) => {
     const { name, area, price, status } = req.body;
-    const owner_id = req.user.id;
+    const userId = req.user.id;
 
     const room = await prisma.rooms.create({
       data: {
@@ -72,7 +72,7 @@ const roomController = {
         area: parseInt(area),
         price: parseInt(price),
         status,
-        owner_id,
+        user_id: userId,
       },
     });
 
@@ -82,7 +82,7 @@ const roomController = {
   update: async (req, res) => {
     const { id } = req.params;
     const { name, area, price, status } = req.body;
-    const owner_id = req.user.id;
+    const userId = req.user.id;
 
     const room = await prisma.rooms.update({
       where: {
@@ -93,7 +93,7 @@ const roomController = {
         area: parseInt(area),
         price: parseInt(price),
         status,
-        owner_id,
+        user_id: userId,
       },
     });
 

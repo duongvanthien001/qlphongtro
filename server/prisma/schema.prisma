@@ -39,29 +39,19 @@ model contracts {
   @@index([tenant_id], map: "tenant_id")
 }
 
-model owners {
-  id    Int     @id @default(autoincrement())
-  name  String  @db.VarChar(100)
-  phone String  @db.VarChar(15)
-  email String? @db.VarChar(100)
-  rooms rooms[]
-  users users[]
-}
-
 model rooms {
-  id            Int           @id @default(autoincrement())
-  name          String?       @db.VarChar(255)
-  area          Float?        @db.Float
-  price         Float?        @db.Float
-  status        rooms_status? @default(available)
-  number_people Int?
-  owner_id      Int?
-  bills         bills[]
-  contracts     contracts[]
-  owners        owners?       @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "rooms_ibfk_1")
-  tenants       tenants[]
+  id        Int           @id @default(autoincrement())
+  name      String?       @db.VarChar(255)
+  area      Float?        @db.Float
+  price     Float?        @db.Float
+  status    rooms_status? @default(available)
+  user_id   Int?
+  bills     bills[]
+  contracts contracts[]
+  users     users?        @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "rooms_ibfk_1")
+  tenants   tenants[]
 
-  @@index([owner_id], map: "owner_id")
+  @@index([user_id], map: "user_id")
 }
 
 model tenants {
@@ -86,13 +76,11 @@ model users {
   password   String?    @db.VarChar(255)
   role       users_role
   tenant_id  Int?
-  owner_id   Int?
   created_at DateTime   @default(now()) @db.Timestamp(0)
   email      String?    @unique(map: "email") @db.VarChar(100)
+  rooms      rooms[]
   tenants    tenants?   @relation(fields: [tenant_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "users_ibfk_1")
-  owners     owners?    @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "users_ibfk_2")
 
-  @@index([owner_id], map: "owner_id")
   @@index([tenant_id], map: "tenant_id")
 }
 

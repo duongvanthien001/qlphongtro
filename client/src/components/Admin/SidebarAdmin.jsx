@@ -13,14 +13,11 @@ import { Link } from "react-router-dom";
 
 export default function SidebarAdmin() {
   return (
-    <div
-      className="bg-dark text-white p-3 vh-100"
-      style={{ flex: "0 0 250px" }}
-    >
+    <div className="bg-dark text-white p-3 h-100" style={{ flex: "0 0 250px" }}>
       <Navbar variant="dark" className="flex-column">
         <Navbar.Brand href="/admin" className="text-center mb-4">
           <span>
-            <FcHome /> Phòng trọ 24h
+            <FcHome /> Phòng trọ NBD
           </span>
         </Navbar.Brand>
 

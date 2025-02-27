@@ -66,7 +66,7 @@ export default function ListUser() {
               <td>{user.id}</td>
               <td>{user.username}</td>
               <td>{user.email}</td>
-              <td>{user.role}</td>
+              <td>{user.role === "owner" ? "Chủ trọ" : "Người thuê trọ"}</td>
               <td>{new Date(user.created_at).toLocaleString("vi")}</td>
               <td>
                 <div className="d-flex align-items-center">

@@ -3,46 +3,41 @@ const bcrypt = require("bcrypt");
 
 const userController = {
   create: async (req, res) => {
-    try {
-      const { username, email, password, role, tenant_id, owner_id } = req.body;
+    const { username, email, password, role, tenant } = req.body;
 
-      if (!username || !password || !role) {
-        return res
-          .status(400)
-          .json({ message: "Vui lòng điền tất cả các trường" });
-      }
-
-      const user = await prisma.users.findFirst({
-        where: {
-          OR: [{ username }, { email }],
-        },
-      });
-
-      if (user) {
-        return res
-          .status(400)
-          .json({ message: "Username hoặc email đã tồn tại" });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-
-      const newUser = await prisma.users.create({
-        data: {
-          username,
-          email,
-          password: hashedPassword,
-          role,
-          tenant_id,
-          owner_id,
-        },
-      });
-
-      res
-        .status(201)
-        .json({ user: newUser, message: "Tạo tài khoản thành công" });
-    } finally {
-      conn.release();
+    if (!username || !password || !role) {
+      return res
+        .status(400)
+        .json({ message: "Vui lòng điền tất cả các trường" });
     }
+
+    const user = await prisma.users.findFirst({
+      where: {
+        OR: [{ username }, { email }],
+      },
+    });
+
+    if (user) {
+      return res
+        .status(400)
+        .json({ message: "Username hoặc email đã tồn tại" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const newUser = await prisma.users.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+        role,
+        tenant_id: tenant,
+      },
+    });
+
+    res
+      .status(201)
+      .json({ user: newUser, message: "Thêm tài khoản thành công" });
   },
 
   getList: async (req, res) => {
