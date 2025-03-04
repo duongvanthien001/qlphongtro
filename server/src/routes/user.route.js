@@ -2,21 +2,52 @@ const { Router } = require("express");
 
 const userController = require("../controllers/user.controller");
 const asyncHandler = require("express-async-handler");
-const { authMiddleware, checkRole } = require("../middlewares/auth.middleware");
+const {
+  authMiddleware,
+  checkRoles,
+} = require("../middlewares/auth.middleware");
 
 const router = Router();
 
 router.get(
   "/",
   authMiddleware,
-  checkRole(["owner"]),
+  checkRoles(["admin", "staff"]),
   asyncHandler(userController.getList)
 );
-router.post("/create", asyncHandler(userController.create));
-router.put("/update/:id", authMiddleware, asyncHandler(userController.update));
+router.get("/me", authMiddleware, asyncHandler(userController.getCurrent));
+router.get(
+  "/:id",
+  authMiddleware,
+  checkRoles(["admin", "staff"]),
+  asyncHandler(userController.getById)
+);
+router.post(
+  "/create",
+  authMiddleware,
+  checkRoles(["admin"]),
+  asyncHandler(userController.create)
+);
+router.put(
+  "/update/me",
+  authMiddleware,
+  asyncHandler(userController.updateProfile)
+);
+router.put(
+  "/update/:id",
+  authMiddleware,
+  checkRoles(["admin", "staff"]),
+  asyncHandler(userController.update)
+);
+router.put(
+  "/change-password",
+  authMiddleware,
+  asyncHandler(userController.changePassword)
+);
 router.delete(
   "/delete/:id",
   authMiddleware,
+  checkRoles(["admin"]),
   asyncHandler(userController.delete)
 );
 

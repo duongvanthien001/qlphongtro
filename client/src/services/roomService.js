@@ -1,18 +1,10 @@
 import axios from "./axios";
+import queryString from "query-string";
 
 export const getRooms = async (options) => {
-  const {
-    page = 1,
-    limit = 8,
-    search = "",
-    order = { id: "desc" },
-  } = options || {};
+  const query = queryString.stringify(options);
 
-  return axios.get(
-    `/rooms?page=${page}&limit=${limit}&search=${search}&order=${JSON.stringify(
-      order
-    )}`
-  );
+  return axios.get(`/rooms?${query}`);
 };
 
 export const getRoomById = async (id) => {

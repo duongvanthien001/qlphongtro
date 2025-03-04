@@ -18,7 +18,7 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-const checkRole = (roles) => {
+const checkRoles = (roles) => {
   return (req, res, next) => {
     // Check if user's role is included in allowed roles
     if (!req.user || !roles.includes(req.user.role)) {
@@ -30,4 +30,4 @@ const checkRole = (roles) => {
   };
 };
 
-module.exports = { authMiddleware, checkRole };
+module.exports = { authMiddleware, checkRoles };

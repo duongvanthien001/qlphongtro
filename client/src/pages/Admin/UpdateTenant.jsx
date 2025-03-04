@@ -29,6 +29,7 @@ export default function UpdateTenant() {
     e.preventDefault();
     console.log("Form data submitted:", formData);
   };
+
   return (
     <Container className="my-5">
       <h2 className="mb-4">Cập Nhật Thông Tin Khách Thuê</h2>

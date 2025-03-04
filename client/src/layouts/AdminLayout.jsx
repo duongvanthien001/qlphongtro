@@ -1,11 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLoaderData } from "react-router-dom";
 import SidebarAdmin from "../components/Admin/SidebarAdmin";
 
 export default function AdminLayout() {
-  const token = localStorage.getItem("token");
+  const user = useLoaderData();
 
-  if (!token) {
+  if (!user) {
     return <Navigate to="/login" />;
+  }
+
+  if (user.role === "tenant") {
+    return <Navigate to="/profile" />;
   }
 
   return (

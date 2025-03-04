@@ -1,39 +1,117 @@
 const prisma = require("../configs/prisma.config");
+const Joi = require("joi");
+const { querySchema, paramsSchema } = require("../schemas/index.schema");
+
+const STATUS = ["available", "occupied", "maintenance"];
+
+const getListSchema = querySchema.keys({
+  status: Joi.string()
+    .valid(...STATUS)
+    .optional()
+    .messages({
+      "any.only": "Trạng thái phòng không hợp lệ",
+    }),
+});
+
+const createSchema = Joi.object({
+  room_number: Joi.string()
+    .required()
+    .messages({
+      "any.required": "Số phòng không được để trống",
+      "string.empty": "Số phòng không được để trống",
+    }),
+  area: Joi.number().min(1).required().messages({
+    "any.required": "Diện tích không được để trống",
+    "number.min": "Diện tích phòng không hợp lệ",
+  }),
+  price: Joi.number().min(1).required().messages({
+    "any.required": "Giá phòng không được để trống",
+    "number.min": "Giá phòng không hợp lệ",
+  }),
+  status: Joi.string()
+    .valid(...STATUS)
+    .required()
+    .messages({ "any.only": "Trạng thái phòng không hợp lệ" }),
+  description: Joi.string().optional().allow(""),
+});
+
+const updateSchema = Joi.object({
+  room_number: Joi.string().optional(),
+  area: Joi.number().optional(),
+  price: Joi.number().optional(),
+  status: Joi.string()
+    .valid(...STATUS)
+    .optional()
+    .messages({ "any.only": "Trạng thái phòng không hợp lệ" }),
+  description: Joi.string().optional(),
+});
 
 const roomController = {
   getList: async (req, res) => {
-    const {
-      page = 1,
-      limit = 8,
-      search = "",
-      order = { id: "desc" },
-    } = req.query;
+    const { value, error } = getListSchema.validate(req.query);
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    const { page, limit, search, order, status } = value;
+
+    if (!page) {
+      const rooms = await prisma.rooms.findMany({
+        where: {
+          room_number: {
+            contains: search,
+          },
+          status,
+        },
+        include: {
+          contracts: {
+            include: {
+              tenants: {
+                include: {
+                  users: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: order,
+      });
+
+      return res.json(rooms);
+    }
 
     const skip = (page - 1) * limit;
 
-    const orderBy = JSON.parse(order);
-
     const rooms = await prisma.rooms.findMany({
       skip,
-      take: parseInt(limit),
+      take: limit,
       where: {
-        name: {
+        room_number: {
           contains: search,
         },
+        status,
       },
       include: {
-        tenants: true,
-        contracts: true,
-        users: true,
+        contracts: {
+          include: {
+            tenants: {
+              include: {
+                users: true,
+              },
+            },
+          },
+        },
       },
-      orderBy,
+      orderBy: order,
     });
 
     const total = await prisma.rooms.count({
       where: {
-        name: {
+        room_number: {
           contains: search,
         },
+        status,
       },
     });
 
@@ -46,54 +124,73 @@ const roomController = {
   },
 
   getById: async (req, res) => {
-    const { id } = req.params;
+    const {
+      value: { id },
+    } = paramsSchema.validate(req.params);
 
     const room = await prisma.rooms.findUnique({
       where: {
-        id: parseInt(id),
+        id,
       },
       include: {
-        tenants: true,
-        contracts: true,
-        users: true,
+        contracts: {
+          include: {
+            tenants: {
+              include: {
+                users: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    if (!room) {
+      return res.status(404).json({ message: "Không tìm thấy phòng" });
+    }
 
     res.json(room);
   },
 
   create: async (req, res) => {
-    const { name, area, price, status } = req.body;
-    const userId = req.user.id;
+    const { value, error } = createSchema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
 
     const room = await prisma.rooms.create({
-      data: {
-        name,
-        area: parseInt(area),
-        price: parseInt(price),
-        status,
-        user_id: userId,
-      },
+      data: value,
     });
 
     res.json({ message: "Thêm phòng thành công", room });
   },
 
   update: async (req, res) => {
-    const { id } = req.params;
-    const { name, area, price, status } = req.body;
-    const userId = req.user.id;
+    const {
+      value: { id },
+    } = paramsSchema.validate(req.params);
+    const { value, error } = updateSchema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
 
     const room = await prisma.rooms.update({
       where: {
-        id: parseInt(id),
+        id,
       },
-      data: {
-        name,
-        area: parseInt(area),
-        price: parseInt(price),
-        status,
-        user_id: userId,
+      data: value,
+      include: {
+        contracts: {
+          include: {
+            tenants: {
+              include: {
+                users: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -101,11 +198,13 @@ const roomController = {
   },
 
   delete: async (req, res) => {
-    const { id } = req.params;
+    const {
+      value: { id },
+    } = paramsSchema.validate(req.params);
 
     await prisma.rooms.delete({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 

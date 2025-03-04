@@ -1,16 +1,20 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { createRoom } from "../../services/roomService";
 import { useNavigate } from "react-router-dom";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 export default function CreateNewRoom() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    room_number: "",
     area: 0,
     price: 0,
     status: "available",
+    description: "",
   });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,32 +26,38 @@ export default function CreateNewRoom() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       await createRoom(formData);
       navigate("/admin/list-room");
     } catch (error) {
-      console.log(error);
+      setError(formatAxiosError(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Container className="my-5">
       <h2 className="mb-4">Thêm Phòng</h2>
-      <Form onSubmit={handleSubmit}>
+
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      <Form onSubmit={handleSubmit} className="login-form">
         <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="name">
-              <Form.Label>Tên phòng</Form.Label>
+          <Col md={4}>
+            <Form.Group controlId="room_number">
+              <Form.Label>Số phòng</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Nhập tên phòng"
-                name="name"
-                value={formData.name}
+                placeholder="Nhập số phòng"
+                name="room_number"
+                value={formData.room_number}
                 onChange={handleChange}
                 required
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group controlId="area">
               <Form.Label>
                 Diện tích (m<sup>2</sup>)
@@ -62,10 +72,7 @@ export default function CreateNewRoom() {
               />
             </Form.Group>
           </Col>
-        </Row>
-
-        <Row className="mb-3">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group controlId="price">
               <Form.Label>Tiền phòng (tháng)</Form.Label>
               <Form.Control
@@ -80,8 +87,30 @@ export default function CreateNewRoom() {
           </Col>
         </Row>
 
-        <Button variant="primary" type="submit">
-          Lưu
+        <Row className="mb-3">
+          <Col>
+            <Form.Group controlId="description">
+              <Form.Label>Mô tả (không bắt buộc)</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Nhập mô tả"
+                name="description"
+                value={formData.description || ""}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Button variant="primary" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Spinner animation="border" /> Loading...
+            </>
+          ) : (
+            "Lưu"
+          )}
         </Button>
       </Form>
     </Container>

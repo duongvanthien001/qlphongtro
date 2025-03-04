@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -8,11 +8,11 @@ import {
   Spinner,
   Alert,
 } from "react-bootstrap";
-import "./Login.css"; // Import custom CSS
+import "./Login.css";
 import { login } from "../../services/authService";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { toast } from "react-hot-toast";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -25,10 +25,10 @@ const Login = () => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const { token, message } = await login(username, password);
+      const { token, message, user } = await login(username, password);
       localStorage.setItem("token", token);
       toast.success(message);
-      navigate("/admin");
+      navigate(user.role === "tenant" ? "/profile" : "/admin");
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {
@@ -36,9 +36,11 @@ const Login = () => {
     }
   };
 
-  if (localStorage.getItem("token")) {
-    return <Navigate to={-1} />;
-  }
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   return (
     <div className="login-page">

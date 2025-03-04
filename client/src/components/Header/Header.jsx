@@ -1,28 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaHome,
   FaSignInAlt,
   FaSignOutAlt,
   FaUserShield,
+  FaUserCircle,
 } from "react-icons/fa";
-import { Navbar, Nav, Button, Container } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Navbar, Nav, Button, Container, NavDropdown } from "react-bootstrap";
+import { Link, useLocation } from "react-router-dom";
 import "./Header.css";
+import { getCurrentUser } from "../../services/userService";
 
 const Header = () => {
   const token = localStorage.getItem("token");
+  const [scroll, setScroll] = useState({ x: 0, y: 0 });
+  const [user, setUser] = useState({});
+  const pathname = useLocation().pathname;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScroll({ x: window.scrollX, y: window.scrollY });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    getCurrentUser()
+      .then((user) => {
+        setUser(user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [token]);
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
+    <Navbar
+      expand="lg"
+      bg={scroll.y > 0 || pathname !== "/" ? "dark" : "transparent"}
+      data-bs-theme="dark"
+      fixed="top"
+    >
       <Container>
-        {/* Logo */}
-        <Navbar.Brand href="/">
-          <FaHome size={30} /> {/* Logo icon */}
-        </Navbar.Brand>
-
-        {/* Navbar toggler for mobile responsiveness */}
-        <Navbar.Toggle aria-controls="navbar-nav" />
-        <Navbar.Collapse className="justify-content-end w-100">
+        {/* Navbar Brand */}
+        <Link to="/" className="navbar-brand d-flex align-items-center lh-1">
+          <FaHome size={30} className="me-2" />
+          <span>Phòng trọ NBD</span>
+        </Link>
+        <Navbar.Toggle />
+        <Navbar.Collapse>
+          <Nav className="me-auto"></Nav>
           <Nav>
             {!token && (
               <Nav.Item>
@@ -39,27 +75,27 @@ const Header = () => {
             )}
 
             {token && (
-              <Nav.Item className="d-flex align-items-center">
-                <Link to="/admin" className="me-4 text-decoration-none">
-                  <Button
-                    variant="outline-light"
-                    className="d-flex align-items-center"
-                  >
-                    <FaUserShield size={20} />
-                    <span>Admin</span>
-                  </Button>
+              <NavDropdown title={user.full_name} id="collapsible-nav-dropdown">
+                <Link
+                  to="/admin"
+                  className="dropdown-item d-flex align-items-center"
+                >
+                  <FaUserShield size={20} className="me-2" /> Admin
                 </Link>
-
-                <Link to="/logout" className="text-decoration-none">
-                  <Button
-                    variant="outline-light"
-                    className="d-flex align-items-center"
-                  >
-                    <FaSignOutAlt size={20} />
-                    <span>Đăng xuất</span>
-                  </Button>
+                <Link
+                  to="/profile"
+                  className="dropdown-item d-flex align-items-center"
+                >
+                  <FaUserCircle size={20} className="me-2" /> Hồ sơ
                 </Link>
-              </Nav.Item>
+                <NavDropdown.Divider />
+                <Link
+                  to="/logout"
+                  className="dropdown-item d-flex align-items-center"
+                >
+                  <FaSignOutAlt size={20} className="me-2" /> Đăng xuất
+                </Link>
+              </NavDropdown>
             )}
           </Nav>
         </Navbar.Collapse>

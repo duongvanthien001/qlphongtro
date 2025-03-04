@@ -6,10 +6,11 @@ import { useNavigate, useParams } from "react-router-dom";
 export default function UpdateRoom() {
   const [formData, setFormData] = useState({
     id: 0,
-    name: "",
-    area: "",
+    room_number: "",
+    area: 0,
     price: 0,
     status: "available",
+    description: "",
   });
   const { id } = useParams();
   const navigate = useNavigate();
@@ -50,12 +51,12 @@ export default function UpdateRoom() {
         <Row className="mb-3">
           <Col md={6}>
             <Form.Group controlId="name">
-              <Form.Label>Tên phòng</Form.Label>
+              <Form.Label>Số phòng</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Nhập tên phòng"
-                name="name"
-                value={formData.name}
+                placeholder="Nhập số phòng"
+                name="room_number"
+                value={formData.room_number}
                 onChange={handleChange}
                 required
               />
@@ -105,7 +106,24 @@ export default function UpdateRoom() {
               >
                 <option value="available">Trống</option>
                 <option value="occupied">Đã thuê</option>
+                <option value="maintenance">Bảo trì</option>
               </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-3">
+          <Col>
+            <Form.Group controlId="description">
+              <Form.Label>Mô tả</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Nhập mô tả"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+              />
             </Form.Group>
           </Col>
         </Row>

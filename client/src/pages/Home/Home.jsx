@@ -5,7 +5,7 @@ import housevid from "../../assets/housevideo.mp4";
 
 const Home = () => {
   return (
-    <div className="app">
+    <div>
       {/* Header Section */}
       <section className="main">
         <div className="main-text">
@@ -71,10 +71,12 @@ const Home = () => {
           <h4>Mọi thắc mắc liên hệ </h4>
           <ul>
             <li>
-              <a href="#">Số điện thoại: 0866825756</a>
+              <a href="tel:0866825756">Số điện thoại: 0866825756</a>
             </li>
             <li>
-              <a href="#">Email: nbduongsv2dz@gmail.com</a>
+              <a href="mailto:nbduongsv2dz@gmail.com">
+                Email: nbduongsv2dz@gmail.com
+              </a>
             </li>
           </ul>
         </div>

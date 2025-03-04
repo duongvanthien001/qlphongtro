@@ -14,12 +14,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([getAnalyst(), getRooms()])
-      .then(([analyst, roomData]) => {
-        if (!analyst || !roomData) {
+      .then(([analyst, rooms]) => {
+        if (!analyst || !rooms) {
           return;
         }
+        console.log(rooms);
         setAnalyst(analyst);
-        setRooms(roomData.rooms);
+        setRooms(rooms);
       })
       .catch((error) => {
         console.log(error);
@@ -76,11 +77,13 @@ export default function Dashboard() {
         <tbody>
           {rooms.map((room) => (
             <tr key={room.id}>
-              <td>{room.name}</td>
-              <td>{room.tenants.length}</td>
+              <td>{room.room_number}</td>
+              <td>{room.contracts?.length || 0}</td>
               <td>
                 <Button variant="light" className="btn-sm">
-                  {room.status === "available" ? "Trống" : "Đã thuê"}
+                  {room.status === "available" && "Trống"}
+                  {room.status === "occupied" && "Đã thuê"}
+                  {room.status === "maintenance" && "Bảo trì"}
                 </Button>
               </td>
             </tr>

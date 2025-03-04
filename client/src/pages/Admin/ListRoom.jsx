@@ -15,7 +15,6 @@ import { formatVnd } from "../../utils/formatVnd";
 import RoomDetailModal from "../../components/Admin/RoomDetailModal";
 import Pagination from "react-bootstrap/Pagination";
 import { paginationItems } from "../../utils/paginationItems";
-import { toast } from "react-hot-toast";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 
 const limit = 8;
@@ -40,20 +39,18 @@ export default function ListRoom() {
   const handleDeleteRoom = async (e, id) => {
     e.preventDefault();
     try {
-      const { message } = await deleteRoom(id);
+      await deleteRoom(id);
 
       setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
-
-      toast.success(message);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const fetchRooms = useCallback(async ({ search, page, order }) => {
+  const fetchRooms = useCallback(async ({ search, page, order, status }) => {
     try {
       setIsLoading(true);
-      const data = await getRooms({ page, limit, search, order });
+      const data = await getRooms({ page, limit, search, order, status });
       setRooms(data.rooms);
       setTotal(data.total);
     } catch (error) {
@@ -69,14 +66,22 @@ export default function ListRoom() {
       await fetchRooms({ page });
       return;
     }
-    const [field, direction] = value.split("-");
-    await fetchRooms({ page, order: { [field]: direction } });
+    await fetchRooms({ page, order: value });
+  };
+
+  const handleSelectStatus = async (e) => {
+    const value = e.target.value;
+    if (!value) {
+      await fetchRooms({ page });
+      return;
+    }
+    await fetchRooms({ page, status: value });
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     const search = e.target.search.value;
-    await fetchRooms({ search });
+    await fetchRooms({ page, search });
   };
 
   useEffect(() => {
@@ -86,15 +91,15 @@ export default function ListRoom() {
   return (
     <Container>
       <RoomDetailModal
-        roomInfo={room}
+        room={room}
         handleClose={handleCloseRoomDetailModal}
         show={isShowRoomDetailModal}
       />
       <h2 className="my-4">Tất cả phòng</h2>
 
       <Row className="mb-4 d-flex">
-        <Col xs={3} className="position-relative">
-          <Form onSubmit={handleSearch}>
+        <Col xs={3}>
+          <Form onSubmit={handleSearch} className="position-relative">
             <Form.Control
               type="search"
               placeholder="Tìm kiếm..."
@@ -104,21 +109,22 @@ export default function ListRoom() {
           </Form>
         </Col>
         <Col xs={2}>
-          <Form.Select>
-            <option value="">Tất cả</option>
+          <Form.Select onChange={handleSelectStatus}>
+            <option value="">Trạng thái</option>
             <option value="available">Trống</option>
             <option value="occupied">Đã thuê</option>
+            <option value="maintenance">Bảo trì</option>
           </Form.Select>
         </Col>
         <Col xs={2}>
           <Form.Select onChange={handleSort}>
             <option value="">Sắp xếp</option>
-            <option value="name-asc">Tên: A-Z</option>
-            <option value="name-desc">Tên: Z-A</option>
-            <option value="price-asc">Giá: Tăng dần</option>
-            <option value="price-desc">Giá: Giảm dần</option>
-            <option value="area-asc">Diện tích: Tăng dần</option>
-            <option value="area-desc">Diện tích: Giảm dần</option>
+            <option value="room_number:asc">Số phòng: A-Z</option>
+            <option value="room_number:desc">Số phòng: Z-A</option>
+            <option value="price:asc">Giá: Tăng dần</option>
+            <option value="price:desc">Giá: Giảm dần</option>
+            <option value="area:asc">Diện tích: Tăng dần</option>
+            <option value="area:desc">Diện tích: Giảm dần</option>
           </Form.Select>
         </Col>
         <Col xs={3} className="ms-auto d-flex justify-content-end">
@@ -136,7 +142,9 @@ export default function ListRoom() {
             <Col key={room.id} md={3} className="mb-4">
               <Card>
                 <Card.Body className="text-center">
-                  <Card.Title className="mb-3">{room.name}</Card.Title>
+                  <Card.Title className="mb-3">
+                    Phòng {room.room_number}
+                  </Card.Title>
 
                   <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
                     <Button
@@ -165,7 +173,9 @@ export default function ListRoom() {
                   </Card.Text>
                   <Card.Text>
                     <strong>Trạng thái:</strong>{" "}
-                    {room.status === "available" ? "Trống" : "Đã thuê"}
+                    {room.status === "available" && "Trống"}
+                    {room.status === "occupied" && "Đã thuê"}
+                    {room.status === "maintenance" && "Đang sửa"}
                   </Card.Text>
                 </Card.Body>
               </Card>
