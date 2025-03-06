@@ -12,6 +12,12 @@ const loginSchema = Joi.object({
   }),
 });
 
+const refreshTokenSchema = Joi.object({
+  token: Joi.string().required().messages({
+    "any.required": "Token không được để trống",
+  }),
+});
+
 const authController = {
   login: async (req, res) => {
     const { value, error } = loginSchema.validate(req.body);
@@ -59,6 +65,30 @@ const authController = {
     res
       .status(200)
       .json({ message: "Đăng nhập thành công", token, refreshToken, user });
+  },
+
+  refreshToken: async (req, res) => {
+    const { value, error } = refreshTokenSchema.validate(req.body);
+
+    const { token } = value;
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    const secret = process.env.JWT_SECRET || "secret";
+
+    jwt.verify(token, secret, (err, user) => {
+      if (err) {
+        return res.status(400).json({ message: "Token không hợp lệ" });
+      }
+
+      const newToken = jwt.sign({ id: user.id, role: user.role }, secret, {
+        expiresIn: "1h",
+      });
+
+      res.status(200).json({ token: newToken });
+    });
   },
 };
 

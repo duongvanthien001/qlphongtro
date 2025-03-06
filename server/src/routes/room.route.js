@@ -15,6 +15,15 @@ router.get(
   asyncHandler(roomController.getList)
 );
 router.get(
+  "/current-user",
+  authMiddleware,
+  (req, _res, next) => {
+    req.query.user_id = req.user.id;
+    next();
+  },
+  asyncHandler(roomController.getList)
+);
+router.get(
   "/:id",
   authMiddleware,
   checkRoles(["admin", "staff"]),

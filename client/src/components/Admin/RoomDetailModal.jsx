@@ -1,22 +1,56 @@
 import { Button, Modal, Form, Row, Col } from "react-bootstrap";
 import { formatVnd } from "../../utils/formatVnd";
-import CreateContractModal from "../../pages/Admin/CreateContractModal";
+import CreateContractModal from "./CreateContractModal";
 import { useState } from "react";
+import CreateBillModal from "./CreateBillModal";
+import toast from "react-hot-toast";
 
 export default function RoomDetailModal({ show, handleClose, room }) {
   const [isShowCreateContract, setIsShowCreateContract] = useState(false);
+  const [isShowCreateBill, setIsShowCreateBill] = useState(false);
 
   const handleCloseCreateContract = () => {
     setIsShowCreateContract(false);
   };
 
+  const handleCloseCreateBill = () => {
+    setIsShowCreateBill(false);
+  };
+
+  const handleOpenCreateBill = () => {
+    const isHasActiveContract = room?.contracts.some(
+      (contract) => contract.status === "active"
+    );
+    if (!isHasActiveContract) {
+      toast.error("Không có hợp đồng nào đang hoạt động");
+      return;
+    }
+    setIsShowCreateBill(true);
+  };
+
+  const contract_id = room?.contracts.find(
+    (contract) => contract.status === "active"
+  )?.id;
+
   return (
     <>
-      <CreateContractModal
-        show={isShowCreateContract}
-        roomId={room?.id}
-        handleClose={handleCloseCreateContract}
-      />
+      {room && (
+        <>
+          <CreateBillModal
+            contract_id={contract_id}
+            show={isShowCreateBill}
+            handleClose={handleCloseCreateBill}
+            handleCloseRoomDetailModal={handleClose}
+          />
+          <CreateContractModal
+            show={isShowCreateContract}
+            room_id={room.id}
+            handleClose={handleCloseCreateContract}
+            handleCloseRoomDetailModal={handleClose}
+          />
+        </>
+      )}
+
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Thông tin phòng</Modal.Title>
@@ -62,17 +96,11 @@ export default function RoomDetailModal({ show, handleClose, room }) {
                 <Col md={6}>
                   <Form.Group controlId="roomStatus">
                     <Form.Label>Trạng thái</Form.Label>
-                    <Form.Control
-                      type="text"
-                      defaultValue={
-                        room.status === "available"
-                          ? "Trống"
-                          : room.status === "occupied"
-                          ? "Đã thuê"
-                          : "Đang sửa"
-                      }
-                      readOnly
-                    />
+                    <Form.Select defaultValue={room.status} readOnly>
+                      <option value="available">Trống</option>
+                      <option value="occupied">Đã thuê</option>
+                      <option value="maintenance">Bảo trì</option>
+                    </Form.Select>
                   </Form.Group>
                 </Col>
               </Row>
@@ -99,11 +127,11 @@ export default function RoomDetailModal({ show, handleClose, room }) {
           </Button>
           <Button
             variant="success"
-            onClick={(e) => setIsShowCreateContract(!isShowCreateContract)}
+            onClick={() => setIsShowCreateContract(true)}
           >
             Tạo hợp đồng
           </Button>
-          <Button variant="primary" onClick={handleClose}>
+          <Button variant="primary" onClick={handleOpenCreateBill}>
             Tạo hóa đơn
           </Button>
         </Modal.Footer>

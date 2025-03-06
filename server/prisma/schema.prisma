@@ -9,17 +9,17 @@ datasource db {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model bills {
-  id           Int           @id @default(autoincrement())
-  contract_id  Int?
-  bill_month   DateTime      @db.Date
-  room_fee     Decimal       @db.Decimal(10, 2)
-  service_fee  Decimal?      @default(0.00) @db.Decimal(10, 2)
-  total_amount Decimal       @db.Decimal(10, 2)
-  status       bills_status? @default(pending)
-  due_date     DateTime      @db.Date
-  created_at   DateTime      @default(now()) @db.Timestamp(0)
-  contracts    contracts?    @relation(fields: [contract_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bills_ibfk_1")
-  payments     payments[]
+  id            Int             @id @default(autoincrement())
+  contract_id   Int?
+  room_fee      Decimal         @db.Decimal(10, 2)
+  service_fee   Decimal?        @default(0.00) @db.Decimal(10, 2)
+  total_amount  Decimal         @db.Decimal(10, 2)
+  status        bills_status?   @default(pending)
+  due_date      DateTime        @db.Date
+  created_at    DateTime        @default(now()) @db.Timestamp(0)
+  contracts     contracts?      @relation(fields: [contract_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bills_ibfk_1")
+  payments      payments[]
+  service_usage service_usage[]
 
   @@index([contract_id], map: "contract_id")
 }
@@ -105,15 +105,16 @@ model payments {
 
 model service_usage {
   id            Int      @id @default(autoincrement())
-  room_id       Int
+  bill_id       Int
   service_id    Int
   usage_amount  Decimal  @db.Decimal(10, 2)
-  recorded_date DateTime @db.Date
-  rooms         rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_1")
+  recorded_date DateTime @default(now()) @db.Date
+  rooms         rooms    @relation(fields: [bill_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_1")
   services      services @relation(fields: [service_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_2")
+  bills         bills    @relation(fields: [bill_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_3")
 
-  @@index([room_id], map: "room_id")
   @@index([service_id], map: "service_id")
+  @@index([bill_id], map: "bill_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -137,12 +138,6 @@ enum maintenances_status {
   completed
 }
 
-enum payments_payment_method {
-  cash
-  bank_transfer
-  momo
-}
-
 enum rooms_status {
   available
   occupied
@@ -160,4 +155,9 @@ enum bills_status {
   paid
   partially_paid
   overdue
+}
+
+enum payments_payment_method {
+  cash
+  bank_transfer
 }

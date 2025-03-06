@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Button,
   Col,
@@ -9,7 +9,7 @@ import {
   Spinner,
   Table,
 } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { deleteUser, getUsers } from "../../services/userService";
 import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { paginationItems } from "../../utils/paginationItems";
@@ -18,18 +18,23 @@ import { formatAxiosError } from "../../utils/formatAxiosError";
 const limit = 8;
 
 export default function ListUser() {
-  const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const data = useLoaderData();
+  const [users, setUsers] = useState(data.users);
+  const [page, setPage] = useState(data.page);
+  const [total, setTotal] = useState(data.total);
+  const [role, setRole] = useState("");
+  const [order, setOrder] = useState("");
+  const [search, setSearch] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchUsers = useCallback(async ({ page, search, order, role }) => {
     try {
       setIsLoading(true);
       const response = await getUsers({ page, limit, search, order, role });
       setUsers(response.users);
-      setPage(response.page);
       setTotal(response.total);
+      setPage(page);
     } catch (error) {
       console.log(formatAxiosError(error));
     } finally {
@@ -40,25 +45,20 @@ export default function ListUser() {
   const handleSearch = async (e) => {
     e.preventDefault();
     const search = e.target.search.value;
-    await fetchUsers({ page, search });
+    setSearch(search);
+    await fetchUsers({ page, search, role, order });
   };
 
   const handleSelectRole = async (e) => {
     const role = e.target.value;
-    if (role === "") {
-      await fetchUsers({ page });
-      return;
-    }
-    await fetchUsers({ page, role });
+    setRole(role);
+    await fetchUsers({ page, search, role, order });
   };
 
   const handleSort = async (e) => {
     const order = e.target.value;
-    if (order === "") {
-      await fetchUsers({ page });
-      return;
-    }
-    await fetchUsers({ page, order });
+    setOrder(order);
+    await fetchUsers({ page, search, role, order });
   };
 
   const handleDelete = async (e, id) => {
@@ -70,9 +70,9 @@ export default function ListUser() {
     }
   };
 
-  useEffect(() => {
-    fetchUsers({ page });
-  }, [fetchUsers, page]);
+  const handleChangePage = async (page) => {
+    await fetchUsers({ page, search, role, order });
+  };
 
   return (
     <Container>
@@ -90,7 +90,7 @@ export default function ListUser() {
           </Form>
         </Col>
         <Col xs={2}>
-          <Form.Select onChange={handleSelectRole}>
+          <Form.Select value={role} onChange={handleSelectRole}>
             <option value="">Vai trò</option>
             <option value="admin">Chủ trọ</option>
             <option value="staff">Nhân viên</option>
@@ -98,7 +98,7 @@ export default function ListUser() {
           </Form.Select>
         </Col>
         <Col xs={2}>
-          <Form.Select onChange={handleSort}>
+          <Form.Select value={order} onChange={handleSort}>
             <option value="">Sắp xếp</option>
             <option value="id:asc">Id: Tăng dần</option>
             <option value="id:desc">Id: Giảm dần</option>
@@ -176,7 +176,7 @@ export default function ListUser() {
           page,
           limit,
           total,
-          setPage,
+          handleChangePage,
         })}
       </Pagination>
     </Container>

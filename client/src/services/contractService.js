@@ -7,7 +7,7 @@ export const getContracts = async (options) => {
 };
 
 export const getContractById = async (id) => {
-  return axios.put(`/contracts/${id}`);
+  return axios.get(`/contracts/${id}`);
 };
 
 export const createContract = async (data) => {

@@ -6,8 +6,12 @@ export const getBills = async (options) => {
   return axios.get(`/bills?${query}`);
 };
 
-export const createBill = async (data) => {
-  return axios.post("/bills/create", data);
+export const getBillById = async (id) => {
+  return axios.get(`/bills/${id}`);
+};
+
+export const createBill = async (body) => {
+  return axios.post("/bills/create", body);
 };
 
 export const updateBill = async (id, data) => {

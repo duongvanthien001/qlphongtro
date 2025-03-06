@@ -11,15 +11,16 @@ const getListSchema = querySchema.keys({
     .messages({
       "any.only": "Trạng thái phòng không hợp lệ",
     }),
+  user_id: Joi.number().optional().messages({
+    "number.base": "ID người dùng không hợp lệ",
+  }),
 });
 
 const createSchema = Joi.object({
-  room_number: Joi.string()
-    .required()
-    .messages({
-      "any.required": "Số phòng không được để trống",
-      "string.empty": "Số phòng không được để trống",
-    }),
+  room_number: Joi.string().required().messages({
+    "any.required": "Số phòng không được để trống",
+    "string.empty": "Số phòng không được để trống",
+  }),
   area: Joi.number().min(1).required().messages({
     "any.required": "Diện tích không được để trống",
     "number.min": "Diện tích phòng không hợp lệ",
@@ -54,16 +55,28 @@ const roomController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const { page, limit, search, order, status } = value;
+    const { page, limit, search, order, status, user_id } = value;
+
+    const where = {
+      room_number: {
+        contains: search,
+      },
+      status,
+    };
+
+    if (user_id) {
+      where.contracts = {
+        some: {
+          tenants: {
+            user_id,
+          },
+        },
+      };
+    }
 
     if (!page) {
       const rooms = await prisma.rooms.findMany({
-        where: {
-          room_number: {
-            contains: search,
-          },
-          status,
-        },
+        where,
         include: {
           contracts: {
             include: {
@@ -86,12 +99,7 @@ const roomController = {
     const rooms = await prisma.rooms.findMany({
       skip,
       take: limit,
-      where: {
-        room_number: {
-          contains: search,
-        },
-        status,
-      },
+      where,
       include: {
         contracts: {
           include: {
@@ -107,12 +115,7 @@ const roomController = {
     });
 
     const total = await prisma.rooms.count({
-      where: {
-        room_number: {
-          contains: search,
-        },
-        status,
-      },
+      where,
     });
 
     res.json({

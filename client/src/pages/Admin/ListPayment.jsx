@@ -1,5 +1,5 @@
-import React from "react";
+import { Container } from "react-bootstrap";
 
 export default function ListPayment() {
-  return <div>ListPayment</div>;
+  return <Container>ListPayment</Container>;
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Button,
   Col,
@@ -10,7 +10,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { deleteContract, getContracts } from "../../services/contractService";
 import { paginationItems } from "../../utils/paginationItems";
 import { formatAxiosError } from "../../utils/formatAxiosError";
@@ -19,10 +19,11 @@ import { formatVnd } from "../../utils/formatVnd";
 const limit = 8;
 
 export default function ListContract() {
+  const data = useLoaderData();
   const [isLoading, setIsLoading] = useState(false);
-  const [contracts, setContacts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [contracts, setContacts] = useState(data.contracts);
+  const [page, setPage] = useState(data.page);
+  const [total, setTotal] = useState(data.total);
 
   const fetchContracts = useCallback(
     async ({ page, order, search, status }) => {
@@ -80,9 +81,9 @@ export default function ListContract() {
     }
   };
 
-  useEffect(() => {
-    fetchContracts({ page });
-  }, [page, fetchContracts]);
+  const handleChangePage = async (page) => {
+    await fetchContracts({ page });
+  };
 
   return (
     <Container>
@@ -161,7 +162,10 @@ export default function ListContract() {
                 </td>
                 <td>
                   <div className="d-flex align-items-center">
-                    <Link to="/admin/update-contract" className="me-2">
+                    <Link
+                      to={`/admin/update-contract/${contract.id}`}
+                      className="me-2"
+                    >
                       <Button variant="warning">
                         <FaEdit /> Sửa
                       </Button>
@@ -191,7 +195,7 @@ export default function ListContract() {
           page,
           limit,
           total,
-          setPage,
+          handleChangePage,
         })}
       </Pagination>
     </Container>

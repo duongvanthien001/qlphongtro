@@ -7,14 +7,12 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 import { Navbar, Nav, Button, Container, NavDropdown } from "react-bootstrap";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLoaderData, useLocation } from "react-router-dom";
 import "./Header.css";
-import { getCurrentUser } from "../../services/userService";
 
 const Header = () => {
-  const token = localStorage.getItem("token");
+  const user = useLoaderData();
   const [scroll, setScroll] = useState({ x: 0, y: 0 });
-  const [user, setUser] = useState({});
   const pathname = useLocation().pathname;
 
   useEffect(() => {
@@ -28,20 +26,6 @@ const Header = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    if (!token) {
-      return;
-    }
-
-    getCurrentUser()
-      .then((user) => {
-        setUser(user);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [token]);
 
   return (
     <Navbar
@@ -60,7 +44,7 @@ const Header = () => {
         <Navbar.Collapse>
           <Nav className="me-auto"></Nav>
           <Nav>
-            {!token && (
+            {!user && (
               <Nav.Item>
                 <Link to="/login" className="text-decoration-none">
                   <Button
@@ -74,7 +58,7 @@ const Header = () => {
               </Nav.Item>
             )}
 
-            {token && (
+            {user && (
               <NavDropdown title={user.full_name} id="collapsible-nav-dropdown">
                 <Link
                   to="/admin"

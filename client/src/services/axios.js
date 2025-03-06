@@ -1,24 +1,35 @@
 import axios from "axios";
 
-const instance = axios.create({
+const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-instance.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response.data,
-  (error) => {
+  async (error) => {
     if (error.response.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/auth/refresh-token`,
+          {
+            token: localStorage.getItem("refreshToken"),
+          }
+        );
+        const { token } = response.data;
+        localStorage.setItem("token", token);
+        return axiosInstance(error.config);
+      } catch (error) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
+        return Promise.reject(error);
+      }
     }
     return Promise.reject(error);
   }
 );
 
-instance.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -29,4 +40,4 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export default instance;
+export default axiosInstance;

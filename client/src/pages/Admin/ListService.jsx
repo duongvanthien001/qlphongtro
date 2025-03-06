@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
 import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { deleteService, getServices } from "../../services/serviceService";
 import { formatVnd } from "../../utils/formatVnd";
 
 export default function ListService() {
-  const [services, setServices] = useState([]);
+  const initialServices = useLoaderData();
+  const [services, setServices] = useState(initialServices);
   const [isLoading, setIsLoading] = useState(false);
+  const [order, setOrder] = useState("");
+  const [search, setSearch] = useState("");
 
   const fetchServices = useCallback(async ({ order, search }) => {
     try {
@@ -35,21 +38,15 @@ export default function ListService() {
   const handleSearch = async (e) => {
     e.preventDefault();
     const search = e.target.search.value;
-    await fetchServices({ search });
+    setSearch(search);
+    await fetchServices({ order, search });
   };
 
   const handleSort = async (e) => {
     const order = e.target.value;
-    if (!order) {
-      await fetchServices({});
-      return;
-    }
-    await fetchServices({ order });
+    setOrder(order);
+    await fetchServices({ order, search });
   };
-
-  useEffect(() => {
-    fetchServices({});
-  }, [fetchServices]);
 
   return (
     <Container>
@@ -67,7 +64,7 @@ export default function ListService() {
           </Form>
         </Col>
         <Col xs={2}>
-          <Form.Select onChange={handleSort}>
+          <Form.Select value={order} onChange={handleSort}>
             <option value="">Sắp xếp</option>
             <option value="id:asc">Id: Tăng dần</option>
             <option value="id:desc">Id: Giảm dần</option>

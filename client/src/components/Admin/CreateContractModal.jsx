@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
-import { getTenants } from "../../services/tenantService";
 import { createContract } from "../../services/contractService";
 import { toast } from "react-hot-toast";
+import { getUsers } from "../../services/userService";
 
 const INITIAL_VALUES = {
   tenant_id: "",
-  start_date: "",
+  start_date: new Date().toISOString().split("T")[0],
   end_date: "",
   deposit: 0,
 };
 
-export default function CreateContractModal({ show, handleClose, roomId }) {
+export default function CreateContractModal({
+  show,
+  handleClose,
+  handleCloseRoomDetailModal,
+  room_id,
+}) {
   const [values, setValues] = useState(INITIAL_VALUES);
-  const [tenants, setTenants] = useState([]);
+  const [users, setUsers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -24,10 +29,11 @@ export default function CreateContractModal({ show, handleClose, roomId }) {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const data = await createContract({ ...values, room_id: roomId });
+      const data = await createContract({ ...values, room_id });
       setValues(INITIAL_VALUES);
       toast.success(data.message);
       handleClose();
+      handleCloseRoomDetailModal();
     } catch (error) {
       console.log(error);
     } finally {
@@ -36,8 +42,10 @@ export default function CreateContractModal({ show, handleClose, roomId }) {
   };
 
   useEffect(() => {
-    getTenants().then((tenants) => setTenants(tenants));
-  }, []);
+    if (show) {
+      getUsers({ role: "tenant" }).then((users) => setUsers(users));
+    }
+  }, [show]);
 
   return (
     <Modal show={show} onHide={handleClose}>
@@ -58,9 +66,9 @@ export default function CreateContractModal({ show, handleClose, roomId }) {
                   required
                 >
                   <option value="">Chọn người thuê</option>
-                  {tenants.map((tenant) => (
-                    <option key={tenant.id} value={tenant.id}>
-                      {tenant.users.full_name}
+                  {users.map((user) => (
+                    <option key={user.tenants.id} value={user.tenants.id}>
+                      {user.full_name}
                     </option>
                   ))}
                 </Form.Select>

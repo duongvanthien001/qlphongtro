@@ -101,6 +101,32 @@ const contractController = {
     res.json({ contracts, page, limit, total });
   },
 
+  async getById(req, res) {
+    const {
+      value: { id },
+    } = paramsSchema.validate(req.params);
+
+    const contract = await prisma.contracts.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        tenants: {
+          include: {
+            users: true,
+          },
+        },
+        rooms: true,
+      },
+    });
+
+    if (!contract) {
+      return res.status(404).json({ message: "Không tìm thấy hợp đồng" });
+    }
+
+    res.json(contract);
+  },
+
   async create(req, res) {
     const { error, value } = createSchema.validate(req.body);
 

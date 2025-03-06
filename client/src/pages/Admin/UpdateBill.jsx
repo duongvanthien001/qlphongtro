@@ -1,15 +1,14 @@
-import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import { updateContract } from "../../services/contractService";
-import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import React, { useState } from "react";
+import { Navigate, useLoaderData, useNavigate } from "react-router-dom";
+import { updateBill } from "../../services/billService";
+import { Form, Button, Col, Container, Row, Spinner } from "react-bootstrap";
 
-export default function UpdateContract() {
-  const contract = useLoaderData();
+export default function UpdateBill() {
+  const bill = useLoaderData();
   const [values, setValues] = useState({
-    start_date: contract.start_date,
-    end_date: contract.end_date,
-    deposit: contract.deposit,
-    status: contract.status,
+    total_amount: bill.total_amount,
+    status: bill.status,
+    due_date: bill.due_date,
   });
   const navigate = useNavigate();
   const [isSubmiting, setIsSubmiting] = useState(false);
@@ -25,8 +24,8 @@ export default function UpdateContract() {
     e.preventDefault();
     try {
       setIsSubmiting(true);
-      await updateContract(contract.id, values);
-      navigate("/admin/list-contract");
+      await updateBill(bill.id, values);
+      navigate("/admin/list-bill");
     } catch (error) {
       console.log(error);
     } finally {
@@ -34,18 +33,20 @@ export default function UpdateContract() {
     }
   };
 
+  if (!bill) return <Navigate to="/admin/list-bill" />;
+
   return (
     <Container className="my-5">
-      <h2 className="mb-4">Sửa hợp đồng</h2>
+      <h2 className="mb-4">Sửa hóa đơn</h2>
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Col md={6}>
             <Form.Group>
-              <Form.Label>Ngày bắt đầu</Form.Label>
+              <Form.Label>Tổng cộng</Form.Label>
               <Form.Control
-                type="date"
-                name="start_date"
-                value={new Date(values.start_date).toISOString().split("T")[0]}
+                type="number"
+                name="total_amount"
+                value={values.total_amount}
                 onChange={handleChange}
                 required
               />
@@ -54,11 +55,11 @@ export default function UpdateContract() {
 
           <Col md={6}>
             <Form.Group>
-              <Form.Label>Ngày kết thúc</Form.Label>
+              <Form.Label>Hạn thanh toán</Form.Label>
               <Form.Control
                 type="date"
-                name="end_date"
-                value={new Date(values.end_date).toISOString().split("T")[0]}
+                name="due_date"
+                value={new Date(values.due_date).toISOString().split("T")[0]}
                 onChange={handleChange}
                 required
               />
@@ -67,32 +68,18 @@ export default function UpdateContract() {
         </Row>
 
         <Row className="mb-3">
-          <Col md={6}>
+          <Col md={12}>
             <Form.Group>
-              <Form.Label>Tiền cọc</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Nhập tiền cọc"
-                name="deposit"
-                value={values.deposit}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="status">
               <Form.Label>Trạng thái</Form.Label>
               <Form.Select
-                as="select"
                 name="status"
                 value={values.status}
                 onChange={handleChange}
-                required
               >
-                <option value="active">Hoạt động</option>
-                <option value="expired">Hết hạn</option>
-                <option value="terminated">Chấm dứt</option>
+                <option value="pending">Chưa thanh toán</option>
+                <option value="paid">Đã thanh toán</option>
+                <option value="partially_paid">Đã thanh toán một phần</option>
+                <option value="overdue">Quá hạn</option>
               </Form.Select>
             </Form.Group>
           </Col>

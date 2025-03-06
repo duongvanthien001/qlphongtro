@@ -9,7 +9,7 @@ export default function AdminLayout() {
   }
 
   if (user.role === "tenant") {
-    return <Navigate to="/profile" />;
+    return <Navigate to="/" />;
   }
 
   return (

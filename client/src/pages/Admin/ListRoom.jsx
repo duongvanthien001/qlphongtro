@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Card,
   Button,
@@ -8,8 +8,8 @@ import {
   Spinner,
   Form,
 } from "react-bootstrap";
-import { FaEdit, FaUserAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaEdit, FaPlus, FaTrashAlt, FaInfoCircle } from "react-icons/fa";
+import { Link, useLoaderData } from "react-router-dom";
 import { deleteRoom, getRooms } from "../../services/roomService";
 import { formatVnd } from "../../utils/formatVnd";
 import RoomDetailModal from "../../components/Admin/RoomDetailModal";
@@ -20,9 +20,13 @@ import { formatAxiosError } from "../../utils/formatAxiosError";
 const limit = 8;
 
 export default function ListRoom() {
-  const [total, setTotal] = useState(0);
-  const [rooms, setRooms] = useState([]);
-  const [page, setPage] = useState(1);
+  const data = useLoaderData();
+  const [total, setTotal] = useState(data.total);
+  const [rooms, setRooms] = useState(data.rooms);
+  const [page, setPage] = useState(data.page);
+  const [search, setSearch] = useState("");
+  const [order, setOrder] = useState("");
+  const [status, setStatus] = useState("");
   const [room, setRoom] = useState(null);
   const [isShowRoomDetailModal, setIsShowRoomDetailModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,9 +35,9 @@ export default function ListRoom() {
     setIsShowRoomDetailModal(false);
   };
 
-  const handleShowRoomDetailModal = (e, room) => {
-    setIsShowRoomDetailModal(true);
+  const handleShowModal = (room) => {
     setRoom(room);
+    setIsShowRoomDetailModal(true);
   };
 
   const handleDeleteRoom = async (e, id) => {
@@ -53,6 +57,7 @@ export default function ListRoom() {
       const data = await getRooms({ page, limit, search, order, status });
       setRooms(data.rooms);
       setTotal(data.total);
+      setPage(data.page);
     } catch (error) {
       console.log(formatAxiosError(error));
     } finally {
@@ -61,32 +66,27 @@ export default function ListRoom() {
   }, []);
 
   const handleSort = async (e) => {
-    const value = e.target.value;
-    if (!value) {
-      await fetchRooms({ page });
-      return;
-    }
-    await fetchRooms({ page, order: value });
+    const order = e.target.value;
+    setOrder(order);
+    await fetchRooms({ page, status, order, search });
   };
 
   const handleSelectStatus = async (e) => {
-    const value = e.target.value;
-    if (!value) {
-      await fetchRooms({ page });
-      return;
-    }
-    await fetchRooms({ page, status: value });
+    const status = e.target.value;
+    setStatus(status);
+    await fetchRooms({ page, status, order, search });
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     const search = e.target.search.value;
-    await fetchRooms({ page, search });
+    setSearch(search);
+    await fetchRooms({ page, search, order, status });
   };
 
-  useEffect(() => {
-    fetchRooms({ page });
-  }, [fetchRooms, page]);
+  const handleChangePage = async (page) => {
+    await fetchRooms({ page, search, order, status });
+  };
 
   return (
     <Container>
@@ -109,7 +109,7 @@ export default function ListRoom() {
           </Form>
         </Col>
         <Col xs={2}>
-          <Form.Select onChange={handleSelectStatus}>
+          <Form.Select value={status} onChange={handleSelectStatus}>
             <option value="">Trạng thái</option>
             <option value="available">Trống</option>
             <option value="occupied">Đã thuê</option>
@@ -117,7 +117,7 @@ export default function ListRoom() {
           </Form.Select>
         </Col>
         <Col xs={2}>
-          <Form.Select onChange={handleSort}>
+          <Form.Select value={order} onChange={handleSort}>
             <option value="">Sắp xếp</option>
             <option value="room_number:asc">Số phòng: A-Z</option>
             <option value="room_number:desc">Số phòng: Z-A</option>
@@ -149,9 +149,9 @@ export default function ListRoom() {
                   <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
                     <Button
                       variant="outline-primary"
-                      onClick={(e) => handleShowRoomDetailModal(e, room)}
+                      onClick={(e) => handleShowModal(room)}
                     >
-                      <FaUserAlt /> Thông tin
+                      <FaInfoCircle /> Thông tin
                     </Button>
                     <Link to={`/admin/update-room/${room.id}`}>
                       <Button variant="outline-warning">
@@ -175,7 +175,7 @@ export default function ListRoom() {
                     <strong>Trạng thái:</strong>{" "}
                     {room.status === "available" && "Trống"}
                     {room.status === "occupied" && "Đã thuê"}
-                    {room.status === "maintenance" && "Đang sửa"}
+                    {room.status === "maintenance" && "Bảo trì"}
                   </Card.Text>
                 </Card.Body>
               </Card>
@@ -195,7 +195,7 @@ export default function ListRoom() {
           page,
           limit,
           total,
-          setPage,
+          handleChangePage,
         })}
       </Pagination>
     </Container>

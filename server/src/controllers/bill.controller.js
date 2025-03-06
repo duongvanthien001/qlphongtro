@@ -14,12 +14,17 @@ const getListSchema = querySchema.keys({
 });
 
 const createSchema = Joi.object({
-  contract_id: Joi.string().required().messages({
+  contract_id: Joi.number().required().messages({
     "any.required": "Id hợp đồng không được bỏ trống",
   }),
-  bill_month: Joi.date().required().messages({
-    "any.required": "Tháng lập hóa đơn không được bỏ trống",
-    "date.base": "Tháng lập hóa đơn không hợp lệ",
+  electricity_index: Joi.number().required().messages({
+    "any.required": "Chỉ số điện không được bỏ trống",
+  }),
+  water_index: Joi.number().required().messages({
+    "any.required": "Chỉ số nước không được bỏ trống",
+  }),
+  include_garbage_fee: Joi.boolean().optional().messages({
+    "boolean.base": "Bao gồm tiền rác không hợp lệ",
   }),
   due_date: Joi.date().required().messages({
     "any.required": "Hạn thanh toán không được bỏ trống",
@@ -28,14 +33,9 @@ const createSchema = Joi.object({
 });
 
 const updateSchema = Joi.object({
-  bill_month: Joi.date().optional().messages({
-    "date.base": "Tháng lập hóa đơn không hợp lệ",
-  }),
   due_date: Joi.date().optional().messages({
     "date.base": "Hạn thanh toán không hợp lệ",
   }),
-  room_fee: Joi.number().optional(),
-  service_fee: Joi.number().optional(),
   total_amount: Joi.number().optional(),
   status: Joi.string()
     .valid(...STATUS)
@@ -68,6 +68,7 @@ const billController = {
                   users: true,
                 },
               },
+              rooms: true,
             },
           },
         },
@@ -88,6 +89,7 @@ const billController = {
                 users: true,
               },
             },
+            rooms: true,
           },
         },
       },
@@ -109,6 +111,40 @@ const billController = {
       total,
     });
   },
+  async getById(req, res) {
+    const {
+      value: { id },
+    } = paramsSchema.validate(req.params);
+
+    const bill = await prisma.bills.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        contracts: {
+          include: {
+            tenants: {
+              include: {
+                users: true,
+              },
+            },
+            rooms: true,
+          },
+        },
+        service_usage: {
+          include: {
+            services: true,
+          },
+        },
+      },
+    });
+
+    if (!bill) {
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
+    }
+
+    res.json(bill);
+  },
   async create(req, res) {
     const { error, value } = createSchema.validate(req.body);
 
@@ -116,9 +152,17 @@ const billController = {
       return res.status(400).json({ message: error.message });
     }
 
+    const {
+      electricity_index,
+      water_index,
+      include_garbage_fee,
+      due_date,
+      contract_id,
+    } = value;
+
     const [contract, services] = await Promise.all([
       await prisma.contracts.findUnique({
-        where: { id: value.contract_id },
+        where: { id: contract_id },
         include: {
           rooms: true,
         },
@@ -126,22 +170,61 @@ const billController = {
       prisma.services.findMany(),
     ]);
 
-    const service_fee = services.reduce(
-      (total, service) => total + service.unit_price,
-      0
-    );
+    const service_fee = services.reduce((acc, service) => {
+      if (service.name === "Điện") {
+        return acc + service.unit_price.toNumber() * electricity_index;
+      } else if (service.name === "Nước") {
+        return acc + service.unit_price.toNumber() * water_index;
+      } else if (service.name === "Internet") {
+        return acc + service.unit_price.toNumber();
+      } else if (service.name === "Rác" && include_garbage_fee) {
+        return acc + service.unit_price.toNumber();
+      }
+      return acc;
+    }, 0);
 
-    const room_fee = contract.rooms.price;
-    const total_amount = service_fee + room_fee;
+    const room_fee = contract.rooms.price.toNumber();
+    const total_amount = room_fee + service_fee;
 
     const bill = await prisma.bills.create({
       data: {
-        ...value,
         service_fee,
         room_fee,
         total_amount,
         status: "pending",
+        due_date,
+        contract_id,
       },
+    });
+
+    const service_usage_data = [
+      {
+        service_id: services.find((service) => service.name === "Điện").id,
+        bill_id: bill.id,
+        usage_amount: electricity_index,
+      },
+      {
+        service_id: services.find((service) => service.name === "Nước").id,
+        bill_id: bill.id,
+        usage_amount: water_index,
+      },
+      {
+        service_id: services.find((service) => service.name === "Internet").id,
+        bill_id: bill.id,
+        usage_amount: 1,
+      },
+    ];
+
+    if (include_garbage_fee) {
+      service_usage_data.push({
+        service_id: services.find((service) => service.name === "Rác").id,
+        bill_id: bill.id,
+        usage_amount: 1,
+      });
+    }
+
+    await prisma.service_usage.createMany({
+      data: service_usage_data,
     });
 
     res.status(201).json({ message: "Tạo hóa đơn thanh công", bill });

@@ -2,9 +2,17 @@ import axios from "./axios";
 import queryString from "query-string";
 
 export const getRooms = async (options) => {
-  const query = queryString.stringify(options);
+  const query = queryString.stringify(options, {
+    skipEmptyString: true,
+  });
 
   return axios.get(`/rooms?${query}`);
+};
+
+export const getRoomsCurrentUser = async (options) => {
+  const query = queryString.stringify(options);
+
+  return axios.get(`/rooms/current-user?${query}`);
 };
 
 export const getRoomById = async (id) => {

@@ -1,6 +1,7 @@
 import React from "react";
-import { Col, ListGroup, ListGroupItem } from "react-bootstrap";
+import { Col, ListGroup } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
+import clsx from "clsx";
 
 export default function SidebarProfile() {
   const pathname = useLocation().pathname;
@@ -8,52 +9,49 @@ export default function SidebarProfile() {
   return (
     <Col md={3}>
       <ListGroup as={"ul"}>
-        <ListGroupItem as={"button"} action active={pathname === "/profile"}>
-          <Link to="/profile" className="text-decoration-none text-inherit">
-            Thông tin cá nhân
-          </Link>
-        </ListGroupItem>
-        <ListGroupItem
-          as={"button"}
-          action
-          active={pathname === "/profile/rooms"}
+        <Link
+          to="/profile"
+          className={clsx(
+            "text-decoration-none list-group-item list-group-item-action",
+            pathname === "/profile" && "active"
+          )}
         >
-          <Link
-            to="/profile/rooms"
-            className="text-decoration-none text-inherit"
-          >
-            Phòng của tôi
-          </Link>
-        </ListGroupItem>
-        <ListGroupItem
-          as={"button"}
-          action
-          active={pathname === "/profile/bills"}
+          Thông tin cá nhân
+        </Link>
+        <Link
+          to="/profile/rooms"
+          className={clsx(
+            "text-decoration-none list-group-item list-group-item-action",
+            pathname === "/profile/rooms" && "active"
+          )}
         >
-          <Link
-            to="/profile/bills"
-            className="text-decoration-none text-inherit"
-          >
-            Hóa đơn
-          </Link>
-        </ListGroupItem>
-        <ListGroupItem
-          as={"button"}
-          action
-          active={pathname === "/profile/maintenances"}
+          Phòng của tôi
+        </Link>
+        <Link
+          to="/profile/bills"
+          className={clsx(
+            "text-decoration-none list-group-item list-group-item-action",
+            pathname === "/profile/bills" && "active"
+          )}
         >
-          <Link
-            to="/profile/maintenances"
-            className="text-decoration-none text-inherit"
-          >
-            Bảo trì
-          </Link>
-        </ListGroupItem>
-        <ListGroupItem as={"button"} action>
-          <Link to="/logout" className="text-decoration-none text-inherit">
-            Đăng xuất
-          </Link>
-        </ListGroupItem>
+          Hóa đơn
+        </Link>
+        <Link
+          to="/profile/maintenances"
+          className={clsx(
+            "text-decoration-none list-group-item list-group-item-action",
+            pathname === "/profile/maintenances" && "active"
+          )}
+        >
+          Bảo trì
+        </Link>
+
+        <Link
+          to="/logout"
+          className="text-decoration-none list-group-item list-group-item-action"
+        >
+          Đăng xuất
+        </Link>
       </ListGroup>
     </Col>
   );

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { useLoaderData } from "react-router-dom";
 
 export default function UpdateTenant() {
+  const user = useLoaderData();
   const [formData, setFormData] = useState({
     roomName: "Phòng 0",
     rent: 1,

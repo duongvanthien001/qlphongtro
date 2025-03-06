@@ -14,6 +14,12 @@ router.get(
   checkRoles(["admin", "staff"]),
   asyncHandler(contractController.getList)
 );
+router.get(
+  "/:id",
+  authMiddleware,
+  checkRoles(["admin", "staff"]),
+  asyncHandler(contractController.getById)
+);
 router.post(
   "/create",
   authMiddleware,

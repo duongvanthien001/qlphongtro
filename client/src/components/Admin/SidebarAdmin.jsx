@@ -2,11 +2,11 @@ import React from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import {
   FaChartLine,
+  FaDollarSign,
   FaFileContract,
   FaFileInvoice,
   FaHome,
   FaHouseUser,
-  FaMoneyBill,
   FaServicestack,
   FaSignOutAlt,
   FaUserAlt,
@@ -83,7 +83,7 @@ export default function SidebarAdmin() {
 
           <Nav.Item className="w-100 mb-2">
             <Link
-              to="/admin/list-invoice"
+              to="/admin/list-bill"
               className="nav-link text-white d-flex align-items-center gap-2"
             >
               <FaFileInvoice /> Hóa đơn
@@ -95,7 +95,7 @@ export default function SidebarAdmin() {
               to="/admin/list-payment"
               className="nav-link text-white d-flex align-items-center gap-2"
             >
-              <FaMoneyBill /> Thanh toán
+              <FaDollarSign /> Thanh toán
             </Link>
           </Nav.Item>
 

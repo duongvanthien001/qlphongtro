@@ -95,7 +95,7 @@ export default function Profile() {
     <Col md={9}>
       <Card className="mb-4">
         <CardBody>
-          <h2 className="mb-4">Thông tin cá nhân</h2>
+          <h3 className="mb-4">Thông tin cá nhân</h3>
           <Form
             className="d-flex flex-column align-items-end"
             onSubmit={handleSubmitUpdate}
@@ -233,7 +233,7 @@ export default function Profile() {
 
       <Card>
         <CardBody>
-          <h2 className="mb-4">Đổi mật khẩu</h2>
+          <h3 className="mb-4">Đổi mật khẩu</h3>
           {errorPassword && (
             <div className="alert alert-danger">{errorPassword}</div>
           )}

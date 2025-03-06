@@ -22,17 +22,31 @@ import Profile from "./pages/Profile/Profile";
 import ListMaintenances from "./pages/Admin/ListMaintenances";
 import HomeLayout from "./layouts/HomeLayout";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { getCurrentUser, getUserById } from "./services/userService";
+import { getCurrentUser, getUserById, getUsers } from "./services/userService";
 import UpdateUser from "./pages/Admin/UpdateUser";
-import { getRoomById } from "./services/roomService";
-import { getServiceById } from "./services/serviceService";
+import {
+  getRoomById,
+  getRooms,
+  getRoomsCurrentUser,
+} from "./services/roomService";
+import { getServiceById, getServices } from "./services/serviceService";
 import ListPayment from "./pages/Admin/ListPayment";
 import UpdateContract from "./pages/Admin/UpdateContract";
-import { getContractById } from "./services/contractService";
+import { getContractById, getContracts } from "./services/contractService";
 import ProfileLayout from "./layouts/ProfileLayout";
 import Rooms from "./pages/Profile/Rooms";
 import Bills from "./pages/Profile/Bills";
+import CreateNewContract from "./pages/Admin/CreateNewContract";
 import Maintenances from "./pages/Profile/Maintenances";
+import { getAnalyst } from "./services/analystService";
+import { getBillById, getBills } from "./services/billService";
+import { getMaintenances } from "./services/maintenancesService";
+import { getPayments } from "./services/paymentService";
+import BillDetail from "./pages/Admin/BillDetail";
+import UpdateBill from "./pages/Admin/UpdateBill";
+import CreateNewBill from "./pages/Admin/CreateNewBill";
+
+const options = { page: 1, limit: 8 };
 
 const router = createBrowserRouter([
   {
@@ -42,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <HomeLayout />,
+        loader: async () => {
+          const user = await getCurrentUser();
+          return user;
+        },
         children: [
           { index: true, element: <Home /> },
           {
@@ -59,6 +77,14 @@ const router = createBrowserRouter([
               {
                 path: "rooms",
                 element: <Rooms />,
+                loader: async () => {
+                  try {
+                    const data = await getRoomsCurrentUser(options);
+                    return data;
+                  } catch (error) {
+                    console.log(error);
+                  }
+                },
               },
               {
                 path: "bills",
@@ -84,16 +110,118 @@ const router = createBrowserRouter([
           return user;
         },
         children: [
-          { index: true, element: <Dashboard /> },
-          { path: "list-room", element: <ListRoom /> },
-          { path: "list-tenant", element: <ListTenant /> },
-          { path: "list-service", element: <ListService /> },
-          { path: "list-contract", element: <ListContract /> },
-          { path: "list-invoice", element: <ListBill /> },
-          { path: "list-maintenances", element: <ListMaintenances /> },
-          { path: "list-payment", element: <ListPayment /> },
-          { path: "report", element: <Report /> },
-          { path: "list-user", element: <ListUser /> },
+          {
+            index: true,
+            element: <Dashboard />,
+            loader: async () => {
+              try {
+                const [analyst, roomData] = await Promise.all([
+                  getAnalyst(),
+                  getRooms(options),
+                ]);
+                return { analyst, roomData };
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "list-room",
+            element: <ListRoom />,
+            loader: async () => {
+              try {
+                const data = await getRooms(options);
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "list-tenant",
+            element: <ListTenant />,
+            loader: async () => {
+              try {
+                const data = await getUsers({ ...options, role: "tenant" });
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "list-service",
+            element: <ListService />,
+            loader: async () => {
+              try {
+                const data = await getServices({});
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "list-contract",
+            element: <ListContract />,
+            loader: async () => {
+              try {
+                const data = await getContracts(options);
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "list-bill",
+            element: <ListBill />,
+            loader: async () => {
+              try {
+                const data = await getBills(options);
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "list-maintenances",
+            element: <ListMaintenances />,
+            loader: async () => {
+              try {
+                const data = await getMaintenances(options);
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "list-payment",
+            element: <ListPayment />,
+            loader: async () => {
+              try {
+                const data = await getPayments(options);
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          { path: "report", element: <Report />, loader: async () => {} },
+          {
+            path: "list-user",
+            element: <ListUser />,
+            loader: async () => {
+              try {
+                const data = await getUsers(options);
+                return data;
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
           { path: "create-new-room", element: <CreateNewRoom /> },
           {
             path: "update-room/:id",
@@ -121,7 +249,19 @@ const router = createBrowserRouter([
               }
             },
           },
-          { path: "update-tenant", element: <UpdateTenant /> },
+          {
+            path: "update-tenant/:id",
+            element: <UpdateTenant />,
+            loader: async ({ params }) => {
+              const { id } = params;
+              try {
+                const user = await getUserById(id);
+                return user;
+              } catch (error) {
+                return null;
+              }
+            },
+          },
           {
             path: "update-service/:id",
             element: <UpdateService />,
@@ -142,15 +282,69 @@ const router = createBrowserRouter([
               const { id } = params;
               try {
                 const contract = await getContractById(id);
+                console.log(contract);
                 return contract;
               } catch (error) {
                 console.log(error);
               }
             },
           },
+          {
+            path: "update-bill/:id",
+            element: <UpdateBill />,
+            loader: async ({ params }) => {
+              const { id } = params;
+              try {
+                const bill = await getBillById(id);
+                return bill;
+              } catch (error) {
+                return null;
+              }
+            },
+          },
           { path: "create-new-service", element: <CreateNewService /> },
           { path: "create-new-tenant", element: <CreateNewTenant /> },
+          {
+            path: "create-new-contract",
+            element: <CreateNewContract />,
+            loader: async () => {
+              try {
+                const [rooms, users] = await Promise.all([
+                  getRooms(),
+                  getUsers({ role: "tenant" }),
+                ]);
+                return { rooms, users };
+              } catch (error) {
+                console.log(error);
+              }
+            },
+          },
+          {
+            path: "create-new-bill",
+            element: <CreateNewBill />,
+            loader: async () => {
+              try {
+                const contracts = await getContracts({ status: "active" });
+                return contracts;
+              } catch (error) {
+                return [];
+              }
+            },
+          },
           { path: "add-user", element: <CreateNewUser /> },
+          {
+            path: "bill/:id",
+            element: <BillDetail />,
+            loader: async ({ params }) => {
+              const { id } = params;
+              try {
+                const bill = await getBillById(id);
+                return bill;
+              } catch (error) {
+                return null;
+              }
+            },
+          },
         ],
       },
       { path: "logout", element: <Logout /> },

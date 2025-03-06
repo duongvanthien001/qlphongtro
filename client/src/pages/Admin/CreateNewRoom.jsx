@@ -42,7 +42,7 @@ export default function CreateNewRoom() {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <Form onSubmit={handleSubmit} className="login-form">
+      <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Col md={4}>
             <Form.Group controlId="room_number">

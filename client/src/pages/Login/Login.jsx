@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Form,
@@ -12,23 +12,22 @@ import "./Login.css";
 import { login } from "../../services/authService";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const { token, message, user } = await login(username, password);
+      const { token, refreshToken, message } = await login(username, password);
       localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
       toast.success(message);
-      navigate(user.role === "tenant" ? "/profile" : "/admin");
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {
@@ -36,11 +35,9 @@ const Login = () => {
     }
   };
 
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      navigate("/");
-    }
-  }, [navigate]);
+  if (localStorage.getItem("token")) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div className="login-page">

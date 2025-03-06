@@ -163,6 +163,19 @@ const userController = {
           },
           role,
         },
+        orderBy: order,
+        omit: { password: true },
+        include: {
+          tenants: {
+            include: {
+              contracts: {
+                include: {
+                  rooms: true,
+                },
+              },
+            },
+          },
+        },
       });
       return res.json(users);
     }
@@ -180,6 +193,17 @@ const userController = {
       skip,
       take: limit,
       omit: { password: true },
+      include: {
+        tenants: {
+          include: {
+            contracts: {
+              include: {
+                rooms: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     const total = await prisma.users.count({

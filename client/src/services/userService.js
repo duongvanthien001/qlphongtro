@@ -2,7 +2,9 @@ import axios from "./axios";
 import queryString from "query-string";
 
 export const getUsers = async (options) => {
-  const query = queryString.stringify(options);
+  const query = queryString.stringify(options, {
+    skipEmptyString: true,
+  });
   return axios.get(`/users?${query}`);
 };
 

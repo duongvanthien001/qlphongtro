@@ -1,6 +1,6 @@
 import { Pagination } from "react-bootstrap";
 
-export const paginationItems = ({ page, limit, total, setPage }) => {
+export const paginationItems = ({ page, limit, total, handleChangePage }) => {
   const items = [];
   const maxVisiblePages = 5; // Số trang hiển thị tối đa giữa Ellipsis
   const totalPages = Math.ceil(total / limit);
@@ -9,7 +9,7 @@ export const paginationItems = ({ page, limit, total, setPage }) => {
   items.push(
     <Pagination.First
       key="first"
-      onClick={() => setPage(1)}
+      onClick={() => handleChangePage(1)}
       disabled={page === 1}
     />
   );
@@ -18,14 +18,18 @@ export const paginationItems = ({ page, limit, total, setPage }) => {
   items.push(
     <Pagination.Prev
       key="prev"
-      onClick={() => setPage(page - 1)}
+      onClick={() => handleChangePage(page - 1)}
       disabled={page === 1}
     />
   );
 
   // Trang đầu tiên
   items.push(
-    <Pagination.Item key={1} active={1 === page} onClick={() => setPage(1)}>
+    <Pagination.Item
+      key={1}
+      active={1 === page}
+      onClick={() => handleChangePage(1)}
+    >
       {1}
     </Pagination.Item>
   );
@@ -49,7 +53,7 @@ export const paginationItems = ({ page, limit, total, setPage }) => {
       <Pagination.Item
         key={number}
         active={number === page}
-        onClick={() => setPage(number)}
+        onClick={() => handleChangePage(number)}
       >
         {number}
       </Pagination.Item>
@@ -67,7 +71,7 @@ export const paginationItems = ({ page, limit, total, setPage }) => {
       <Pagination.Item
         key={totalPages}
         active={totalPages === page}
-        onClick={() => setPage(totalPages)}
+        onClick={() => handleChangePage(totalPages)}
       >
         {totalPages}
       </Pagination.Item>
@@ -78,7 +82,7 @@ export const paginationItems = ({ page, limit, total, setPage }) => {
   items.push(
     <Pagination.Next
       key="next"
-      onClick={() => setPage(page + 1)}
+      onClick={() => handleChangePage(page + 1)}
       disabled={page === totalPages}
     />
   );
@@ -87,7 +91,7 @@ export const paginationItems = ({ page, limit, total, setPage }) => {
   items.push(
     <Pagination.Last
       key="last"
-      onClick={() => setPage(totalPages)}
+      onClick={() => handleChangePage(totalPages)}
       disabled={page === totalPages}
     />
   );

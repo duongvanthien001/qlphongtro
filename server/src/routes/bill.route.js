@@ -14,10 +14,16 @@ router.get(
   checkRoles(["admin", "staff"]),
   billController.getList
 );
+router.get(
+  "/:id",
+  authMiddleware,
+  checkRoles(["admin", "staff"]),
+  billController.getById
+);
 router.post(
   "/create",
   authMiddleware,
-  checkRoles(["admin"]),
+  checkRoles(["admin", "staff"]),
   billController.create
 );
 router.put(

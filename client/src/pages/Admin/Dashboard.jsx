@@ -1,31 +1,12 @@
-import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button, Table } from "react-bootstrap";
-import { FaHouseUser, FaUserAlt } from "react-icons/fa";
-import { MdMeetingRoom } from "react-icons/md";
-import { getRooms } from "../../services/roomService";
-import { getAnalyst } from "../../services/analystService";
-export default function Dashboard() {
-  const [rooms, setRooms] = useState([]);
-  const [analyst, setAnalyst] = useState({
-    room: 0,
-    emptyRoom: 0,
-    people: 0,
-  });
+import { FaDoorOpen, FaHouseUser, FaUserAlt } from "react-icons/fa";
+import { Link, useLoaderData } from "react-router-dom";
+import CountUp from "react-countup";
 
-  useEffect(() => {
-    Promise.all([getAnalyst(), getRooms()])
-      .then(([analyst, rooms]) => {
-        if (!analyst || !rooms) {
-          return;
-        }
-        console.log(rooms);
-        setAnalyst(analyst);
-        setRooms(rooms);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+export default function Dashboard() {
+  const { analyst, roomData } = useLoaderData();
+
+  const rooms = roomData.rooms;
 
   return (
     <Container>
@@ -34,9 +15,11 @@ export default function Dashboard() {
         <Col md={4} className="text-center">
           <Card>
             <Card.Body>
-              <Card.Title>Số Phòng</Card.Title>
-              <Card.Text>{analyst.room}</Card.Text>
-              <FaHouseUser />
+              <Card.Title>Tổng Số Phòng</Card.Title>
+              <Card.Text className="fs-5">
+                <CountUp end={analyst.room} />
+              </Card.Text>
+              <FaHouseUser size={20} />
             </Card.Body>
           </Card>
         </Col>
@@ -45,9 +28,10 @@ export default function Dashboard() {
           <Card>
             <Card.Body>
               <Card.Title>Số Phòng Trống</Card.Title>
-              <Card.Text>{analyst.emptyRoom}</Card.Text>
-
-              <MdMeetingRoom />
+              <Card.Text className="fs-5">
+                <CountUp end={analyst.emptyRoom} />
+              </Card.Text>
+              <FaDoorOpen size={20} />
             </Card.Body>
           </Card>
         </Col>
@@ -56,16 +40,22 @@ export default function Dashboard() {
           <Card>
             <Card.Body>
               <Card.Title>Số Người Ở</Card.Title>
-              <Card.Text>{analyst.people}</Card.Text>
-
-              <FaUserAlt />
+              <Card.Text className="fs-5">
+                <CountUp end={analyst.people} />
+              </Card.Text>
+              <FaUserAlt size={20} />
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
       {/* Phần Danh sách phòng */}
-      <h3 className="my-4">Danh sách phòng</h3>
+      <div className="d-flex align-items-center justify-content-between my-4">
+        <h3 className="mb-0">Danh sách phòng</h3>
+        <Link to="/admin/list-room" className="btn btn-link">
+          Xem tất cả
+        </Link>
+      </div>
       <Table striped bordered hover>
         <thead>
           <tr>
