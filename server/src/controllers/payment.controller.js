@@ -2,7 +2,7 @@ const Joi = require("joi");
 const prisma = require("../configs/prisma.config");
 const { querySchema, paramsSchema } = require("../schemas/index.schema");
 
-const PAYMENT_METHOD = ["cash", "bank_transfer", "momo"];
+const PAYMENT_METHOD = ["cash", "bank_transfer"];
 
 const getListSchema = querySchema.keys({
   payment_method: Joi.string()
@@ -14,7 +14,7 @@ const getListSchema = querySchema.keys({
 });
 
 const createSchema = Joi.object({
-  bill_id: Joi.string().required().messages({
+  bill_id: Joi.number().required().messages({
     "any.required": "Id hóa đơn không được bỏ trống",
   }),
   amount: Joi.number().required().messages({
@@ -80,6 +80,24 @@ const paymentController = {
 
     res.json({ payments, total, page, limit });
   },
+  getById: async (req, res) => {
+    const {
+      value: { id },
+    } = paramsSchema.validate(req.params);
+
+    const payment = await prisma.payments.findUnique({
+      where: { id },
+      include: {
+        bills: true,
+      },
+    });
+
+    if (!payment) {
+      return res.status(404).json({ message: "Không tìm thấy thanh toán" });
+    }
+
+    res.json(payment);
+  },
   create: async (req, res) => {
     const { error, value } = createSchema.validate(req.body);
 
@@ -89,6 +107,21 @@ const paymentController = {
 
     const payment = await prisma.payments.create({
       data: value,
+      include: {
+        bills: true,
+      },
+    });
+
+    console.log(payment);
+
+    await prisma.bills.update({
+      where: { id: value.bill_id },
+      data: {
+        status:
+          payment.amount.toNumber() === payment.bills.total_amount.toNumber()
+            ? "paid"
+            : "partially_paid",
+      },
     });
 
     res.status(201).json({ message: "Thanh toán thành công", payment });

@@ -17,8 +17,9 @@ router.get(
 router.get(
   "/current-user",
   authMiddleware,
+  checkRoles(["tenant"]),
   (req, _res, next) => {
-    req.query.user_id = req.user.id;
+    req.query.tenant_id = req.user.tenant_id;
     next();
   },
   asyncHandler(roomController.getList)

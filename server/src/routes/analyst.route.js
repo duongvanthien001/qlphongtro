@@ -15,4 +15,11 @@ router.get(
   expressAsyncHandler(analystController.getAnalyst)
 );
 
+router.get(
+  "/report",
+  authMiddleware,
+  checkRoles(["admin"]),
+  expressAsyncHandler(analystController.getReport)
+);
+
 module.exports = router;

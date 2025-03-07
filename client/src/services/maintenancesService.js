@@ -2,8 +2,17 @@ import axios from "./axios";
 import queryString from "query-string";
 
 export const getMaintenances = async (options) => {
-  const query = queryString.stringify(options);
+  const query = queryString.stringify(options, {
+    skipEmptyString: true,
+  });
   return axios.get(`/maintenances?${query}`);
+};
+
+export const getMaintenancesByCurrentUser = async (options) => {
+  const query = queryString.stringify(options, {
+    skipEmptyString: true,
+  });
+  return axios.get(`/maintenances/current?${query}`);
 };
 
 export const createMaintenance = async (data) => {

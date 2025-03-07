@@ -103,7 +103,8 @@ export default function CreateNewBill() {
                 <option value="">Chọn phòng</option>
                 {contracts.map((contract) => (
                   <option key={contract.id} value={contract.id}>
-                    {contract.rooms.room_number}
+                    {contract.rooms.room_number} -{" "}
+                    {contract.tenants.users.full_name}
                   </option>
                 ))}
               </Form.Select>

@@ -11,6 +11,12 @@ const getListSchema = querySchema.keys({
     .messages({
       "any.only": "Trạng thái hóa đơn không hợp lệ",
     }),
+  month: Joi.number().optional().messages({
+    "number.base": "Tháng không hợp lệ",
+  }),
+  tenant_id: Joi.number().optional().messages({
+    "number.base": "Id người thuê không hợp lệ",
+  }),
 });
 
 const createSchema = Joi.object({
@@ -53,13 +59,28 @@ const billController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const { page, limit, search, order, status } = value;
+    const { page, limit, search, order, status, month, tenant_id } = value;
+
+    const where = {
+      status,
+    };
+
+    if (tenant_id) {
+      where.contracts = {
+        tenant_id,
+      };
+    }
+
+    if (month) {
+      where.created_at = {
+        gte: new Date(new Date().getFullYear(), month - 1, 1),
+        lt: new Date(new Date().getFullYear(), month, 1),
+      };
+    }
 
     if (!page) {
       const bills = await prisma.bills.findMany({
-        where: {
-          status,
-        },
+        where,
         include: {
           contracts: {
             include: {
@@ -71,6 +92,11 @@ const billController = {
               rooms: true,
             },
           },
+          service_usage: {
+            include: {
+              services: true,
+            },
+          },
         },
         orderBy: order,
       });
@@ -80,7 +106,7 @@ const billController = {
     const skip = (page - 1) * limit;
 
     const bills = await prisma.bills.findMany({
-      where: { status },
+      where,
       include: {
         contracts: {
           include: {
@@ -92,6 +118,11 @@ const billController = {
             rooms: true,
           },
         },
+        service_usage: {
+          include: {
+            services: true,
+          },
+        },
       },
       orderBy: order,
       skip,
@@ -99,9 +130,7 @@ const billController = {
     });
 
     const total = await prisma.bills.count({
-      where: {
-        status,
-      },
+      where,
     });
 
     res.json({

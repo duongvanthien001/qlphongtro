@@ -32,6 +32,9 @@ const authController = {
       where: {
         username,
       },
+      include: {
+        tenants: true,
+      },
     });
 
     if (!user) {
@@ -48,17 +51,22 @@ const authController = {
         .json({ message: "Username hoặc mật khẩu không đúng" });
     }
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET || "secret",
-      { expiresIn: "1h" }
-    );
+    const payload = {
+      id: user.id,
+      role: user.role,
+    };
 
-    const refreshToken = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET || "secret",
-      { expiresIn: "7d" }
-    );
+    if (user.tenants) {
+      payload.tenant_id = user.tenants.id;
+    }
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET || "secret", {
+      expiresIn: "1h",
+    });
+
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET || "secret", {
+      expiresIn: "7d",
+    });
 
     delete user.password;
 
@@ -83,7 +91,16 @@ const authController = {
         return res.status(400).json({ message: "Token không hợp lệ" });
       }
 
-      const newToken = jwt.sign({ id: user.id, role: user.role }, secret, {
+      const payload = {
+        id: user.id,
+        role: user.role,
+      };
+
+      if (user.tenant_id) {
+        payload.tenant_id = user.tenant_id;
+      }
+
+      const newToken = jwt.sign(payload, secret, {
         expiresIn: "1h",
       });
 

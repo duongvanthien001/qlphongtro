@@ -15,6 +15,16 @@ router.get(
   billController.getList
 );
 router.get(
+  "/current-user",
+  authMiddleware,
+  checkRoles(["tenant"]),
+  (req, _res, next) => {
+    req.query.tenant_id = req.user.tenant_id;
+    next();
+  },
+  billController.getList
+);
+router.get(
   "/:id",
   authMiddleware,
   checkRoles(["admin", "staff"]),

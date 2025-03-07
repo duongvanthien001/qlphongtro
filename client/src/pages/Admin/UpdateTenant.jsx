@@ -1,24 +1,31 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
-import { useLoaderData } from "react-router-dom";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
+import { useLoaderData, useNavigate } from "react-router-dom";
+import { formatAxiosError } from "../../utils/formatAxiosError";
+import { updateUser } from "../../services/userService";
 
 export default function UpdateTenant() {
   const user = useLoaderData();
   const [formData, setFormData] = useState({
-    roomName: "Phòng 0",
-    rent: 1,
-    electricityIndex: 1,
-    electricityFee: 1,
-    waterIndex: 1,
-    waterFee: 1,
-    wifiFee: 0,
-    airConditionerFee: 0,
-    wasteFee: 0,
-    extraFee: 0,
-    billingDate: "00/00/0000",
-    roomType: "Phòng bình thường",
-    roomStatus: "Phòng trống",
+    username: user.username,
+    full_name: user.full_name,
+    email: user.email,
+    phone: user.phone,
+    id_card: user.tenants.id_card || "",
+    date_of_birth: user.tenants.date_of_birth || "",
+    address: user.tenants.address || "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -27,76 +34,132 @@ export default function UpdateTenant() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data submitted:", formData);
+
+    try {
+      setIsSubmitting(true);
+      await updateUser(user.id, formData);
+      navigate("/admin/list-tenant");
+    } catch (error) {
+      setError(formatAxiosError(error));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Container className="my-5">
       <h2 className="mb-4">Cập Nhật Thông Tin Khách Thuê</h2>
+
+      {error && <Alert variant="danger">{error}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="roomName">
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Nhập username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
               <Form.Label>Họ và tên</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Nhập tên khách"
-                name="roomName"
-                value={formData.roomName}
+                name="full_name"
+                value={formData.full_name}
                 onChange={handleChange}
                 required
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Group controlId="rent">
-              <Form.Label>Tuổi</Form.Label>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Email</Form.Label>
               <Form.Control
-                type="number"
-                placeholder="Nhập tuổi"
-                name="rent"
-                value={formData.rent}
+                type="text"
+                placeholder="Nhập email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                required
               />
             </Form.Group>
           </Col>
         </Row>
 
         <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="wasteFee">
-              <Form.Label>Số diện thoại</Form.Label>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Số điện thoại</Form.Label>
               <Form.Control
-                type="number"
+                type="text"
                 placeholder="Nhập số điện thoại"
-                name="wasteFee"
-                value={formData.wasteFee}
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>CCCD/CMND</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Nhập số CCCD/CMND"
+                name="id_card"
+                value={formData.id_card}
                 onChange={handleChange}
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Group controlId="roomStatus">
-              <Form.Label>Phòng</Form.Label>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Ngày sinh</Form.Label>
               <Form.Control
-                as="select"
-                name="roomStatus"
-                value={formData.roomStatus}
+                type="date"
+                name="date_of_birth"
+                value={
+                  new Date(formData.date_of_birth).toISOString().split("T")[0]
+                }
                 onChange={handleChange}
-                required
-              >
-                <option>Phòng 1</option>
-                <option>Phòng 2</option>
-              </Form.Control>
+              />
             </Form.Group>
           </Col>
         </Row>
 
-        <Button variant="primary" type="submit">
-          Lưu
+        <Row className="mb-3">
+          <Col md={12}>
+            <Form.Group>
+              <Form.Label>Địa chỉ</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Nhập địa chỉ"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Button variant="primary" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Spinner animation="border" size="sm" />
+              Loading...
+            </>
+          ) : (
+            "Lưu"
+          )}
         </Button>
       </Form>
     </Container>

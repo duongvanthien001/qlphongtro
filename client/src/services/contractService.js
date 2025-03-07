@@ -2,7 +2,9 @@ import axios from "./axios";
 import queryString from "query-string";
 
 export const getContracts = async (options) => {
-  const query = queryString.stringify(options);
+  const query = queryString.stringify(options, {
+    skipEmptyString: true,
+  });
   return axios.get(`/contracts?${query}`);
 };
 

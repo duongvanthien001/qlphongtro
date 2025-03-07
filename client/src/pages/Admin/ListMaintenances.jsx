@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Button,
   Col,
@@ -9,8 +9,8 @@ import {
   Spinner,
   Table,
 } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
+import { Link, useLoaderData } from "react-router-dom";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { paginationItems } from "../../utils/paginationItems";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import {
@@ -21,10 +21,14 @@ import {
 const limit = 8;
 
 export default function ListMaintenances() {
-  const [maintenances, setMaintenances] = useState([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const data = useLoaderData();
+  const [maintenances, setMaintenances] = useState(data.maintenances);
+  const [page, setPage] = useState(data.page);
+  const [total, setTotal] = useState(data.total);
+  const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [order, setOrder] = useState("");
+  const [status, setStatus] = useState("");
 
   const fetchMaintenances = useCallback(
     async ({ page, search, order, status }) => {
@@ -39,6 +43,7 @@ export default function ListMaintenances() {
         });
         setMaintenances(data.maintenances);
         setTotal(data.total);
+        setPage(data.page);
       } catch (error) {
         console.log(formatAxiosError(error));
       } finally {
@@ -50,29 +55,20 @@ export default function ListMaintenances() {
 
   const handleSearch = async (e) => {
     const search = e.target.search.value;
-    if (!search) {
-      await fetchMaintenances({ page });
-      return;
-    }
-    await fetchMaintenances({ page, search });
+    setSearch(search);
+    await fetchMaintenances({ page, status, search, order });
   };
 
   const handleSort = async (e) => {
     const order = e.target.value;
-    if (!order) {
-      await fetchMaintenances({ page });
-      return;
-    }
-    await fetchMaintenances({ page, order });
+    setOrder(order);
+    await fetchMaintenances({ page, status, search, order });
   };
 
   const handleSelectStatus = async (e) => {
     const status = e.target.value;
-    if (!status) {
-      await fetchMaintenances({ page });
-      return;
-    }
-    await fetchMaintenances({ page, status });
+    setStatus(status);
+    await fetchMaintenances({ page, status, search, order });
   };
 
   const handleDelete = async (e, id) => {
@@ -86,9 +82,9 @@ export default function ListMaintenances() {
     }
   };
 
-  useEffect(() => {
-    fetchMaintenances({ page });
-  }, [page, fetchMaintenances]);
+  const handleChangePage = async (page) => {
+    await fetchMaintenances({ page, search, order, status });
+  };
 
   return (
     <Container>
@@ -106,30 +102,25 @@ export default function ListMaintenances() {
           </Form>
         </Col>
         <Col xs={2}>
-          <Form.Select onChange={handleSelectStatus}>
-            <option value="">Tất cả</option>
-            <option value="admin">Chủ trọ</option>
-            <option value="staff">Nhân viên</option>
-            <option value="tenant">Khách thuê</option>
+          <Form.Select value={status} onChange={handleSelectStatus}>
+            <option value="">Trạng thái</option>
+            <option value="pending">Chờ xử lý</option>
+            <option value="in_progress">Đang xử lý</option>
+            <option value="completed">Đã xử lý</option>
           </Form.Select>
         </Col>
         <Col xs={2}>
-          <Form.Select onChange={handleSort}>
+          <Form.Select value={order} onChange={handleSort}>
             <option value="">Sắp xếp</option>
             <option value="id:asc">Id: Tăng dần</option>
             <option value="id:desc">Id: Giảm dần</option>
-            <option value="full_name:asc">Tên: A-Z</option>
-            <option value="full_name:desc">Tên: Z-A</option>
-            <option value="created_at:asc">Ngày tạo: Tăng dần</option>
-            <option value="created_at:desc">Ngày tạo: Giảm dần</option>
+            <option value="request_date:desc">Ngày yêu cầu: Mới nhất</option>
+            <option value="request_date:asc">Ngày yêu cầu: Cũ nhất</option>
+            <option value="resolved_date:desc">
+              Ngày giải quyết: Mới nhất
+            </option>
+            <option value="resolved_date:asc">Ngày giải quyết: Cũ nhất</option>
           </Form.Select>
-        </Col>
-        <Col xs={3} className="ms-auto d-flex justify-content-end">
-          <Link to="/admin/add-user">
-            <Button variant="primary">
-              <FaPlus /> Thêm người dùng
-            </Button>
-          </Link>
         </Col>
       </Row>
 
@@ -140,10 +131,10 @@ export default function ListMaintenances() {
               <th>Id</th>
               <th>Phòng</th>
               <th>Người thuê</th>
-              <th>Ngày yêu cầu</th>
-              <th>Ngày giải quyết</th>
               <th>Mô tả</th>
               <th>Trạng thái</th>
+              <th>Ngày yêu cầu</th>
+              <th>Ngày giải quyết</th>
               <th>Hành động</th>
             </tr>
           </thead>
@@ -153,16 +144,25 @@ export default function ListMaintenances() {
                 <td>{maintenace.id}</td>
                 <td>{maintenace.rooms.room_number}</td>
                 <td>{maintenace.tenants.users.full_name}</td>
-                <td>{maintenace.request_date}</td>
-                <td>{maintenace.resolved_date}</td>
+                <td>{maintenace.description}</td>
                 <td>
                   {maintenace.status === "pending" && "Chờ xử lý"}
                   {maintenace.status === "in_progress" && "Đang xử lý"}
                   {maintenace.status === "completed" && "Đã xử lý"}
                 </td>
                 <td>
+                  {new Date(maintenace.request_date).toLocaleDateString()}
+                </td>
+                <td>
+                  {maintenace.resolved_date &&
+                    new Date(maintenace.resolved_date).toLocaleDateString()}
+                </td>
+                <td>
                   <div className="d-flex align-items-center">
-                    <Link to="/admin/update-maintenance" className="me-2">
+                    <Link
+                      to={`/admin/update-maintenance/${maintenace.id}`}
+                      className="me-2"
+                    >
                       <Button variant="warning">
                         <FaEdit /> Sửa
                       </Button>
@@ -191,7 +191,7 @@ export default function ListMaintenances() {
           page,
           limit,
           total,
-          setPage,
+          handleChangePage,
         })}
       </Pagination>
     </Container>

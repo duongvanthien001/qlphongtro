@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
 import { FaDollarSign, FaPrint } from "react-icons/fa";
 import { Navigate, useLoaderData } from "react-router-dom";
 import { formatVnd } from "../../utils/formatVnd";
+import CreatePaymentModal from "../../components/Admin/CreatePaymentModal";
 
 export default function BillDetail() {
   const bill = useLoaderData();
+  const [isShowModal, setIsShowModal] = useState(false);
 
   if (!bill) {
     return <Navigate to="/admin/list-bill" />;
@@ -13,6 +15,11 @@ export default function BillDetail() {
 
   return (
     <Container className="my-5">
+      <CreatePaymentModal
+        show={isShowModal}
+        handleClose={() => setIsShowModal(false)}
+        bill={bill}
+      />
       <h4 className="mb-4">
         Hóa đơn: Phòng {bill.contracts.rooms.room_number}
       </h4>
@@ -64,7 +71,7 @@ export default function BillDetail() {
           >
             <FaPrint /> In hóa đơn
           </Button>
-          <Button variant="success">
+          <Button variant="success" onClick={() => setIsShowModal(true)}>
             <FaDollarSign /> Thanh toán
           </Button>
         </Col>

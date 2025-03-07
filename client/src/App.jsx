@@ -38,13 +38,22 @@ import Rooms from "./pages/Profile/Rooms";
 import Bills from "./pages/Profile/Bills";
 import CreateNewContract from "./pages/Admin/CreateNewContract";
 import Maintenances from "./pages/Profile/Maintenances";
-import { getAnalyst } from "./services/analystService";
-import { getBillById, getBills } from "./services/billService";
-import { getMaintenances } from "./services/maintenancesService";
-import { getPayments } from "./services/paymentService";
+import { getAnalyst, getReport } from "./services/analystService";
+import {
+  getBillById,
+  getBills,
+  getBillsCurrentUser,
+} from "./services/billService";
+import {
+  getMaintenances,
+  getMaintenancesByCurrentUser,
+} from "./services/maintenancesService";
+import { getPaymentById, getPayments } from "./services/paymentService";
 import BillDetail from "./pages/Admin/BillDetail";
 import UpdateBill from "./pages/Admin/UpdateBill";
 import CreateNewBill from "./pages/Admin/CreateNewBill";
+import UpdatePayment from "./pages/Admin/UpdatePayment";
+import NotFound from "./pages/NotFound";
 
 const options = { page: 1, limit: 8 };
 
@@ -65,6 +74,10 @@ const router = createBrowserRouter([
           {
             path: "profile",
             element: <ProfileLayout />,
+            loader: async () => {
+              const user = await getCurrentUser();
+              return user;
+            },
             children: [
               {
                 index: true,
@@ -89,10 +102,26 @@ const router = createBrowserRouter([
               {
                 path: "bills",
                 element: <Bills />,
+                loader: async () => {
+                  try {
+                    const data = await getBillsCurrentUser(options);
+                    return data;
+                  } catch (error) {
+                    console.log(error);
+                  }
+                },
               },
               {
                 path: "maintenances",
                 element: <Maintenances />,
+                loader: async () => {
+                  try {
+                    const data = await getMaintenancesByCurrentUser(options);
+                    return data;
+                  } catch (error) {
+                    console.log(error);
+                  }
+                },
               },
             ],
           },
@@ -209,7 +238,22 @@ const router = createBrowserRouter([
               }
             },
           },
-          { path: "report", element: <Report />, loader: async () => {} },
+          {
+            path: "report",
+            element: <Report />,
+            loader: async () => {
+              try {
+                const [report, bills] = await Promise.all([
+                  getReport(),
+                  getBills(),
+                ]);
+
+                return { report, initialBills: bills };
+              } catch (error) {
+                return null;
+              }
+            },
+          },
           {
             path: "list-user",
             element: <ListUser />,
@@ -302,6 +346,19 @@ const router = createBrowserRouter([
               }
             },
           },
+          {
+            path: "update-payment/:id",
+            element: <UpdatePayment />,
+            loader: async ({ params }) => {
+              const { id } = params;
+              try {
+                const payment = await getPaymentById(id);
+                return payment;
+              } catch (error) {
+                return null;
+              }
+            },
+          },
           { path: "create-new-service", element: <CreateNewService /> },
           { path: "create-new-tenant", element: <CreateNewTenant /> },
           {
@@ -348,7 +405,7 @@ const router = createBrowserRouter([
         ],
       },
       { path: "logout", element: <Logout /> },
-      { path: "*", element: <h1>Not Found</h1> },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

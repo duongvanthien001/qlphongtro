@@ -59,7 +59,7 @@ export default function Dashboard() {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>Tên phòng</th>
+            <th>Phòng</th>
             <th>Số người ở</th>
             <th>Trạng thái</th>
           </tr>

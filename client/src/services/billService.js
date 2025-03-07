@@ -2,8 +2,13 @@ import axios from "./axios";
 import queryString from "query-string";
 
 export const getBills = async (options) => {
-  const query = queryString.stringify(options);
+  const query = queryString.stringify(options, { skipEmptyString: true });
   return axios.get(`/bills?${query}`);
+};
+
+export const getBillsCurrentUser = async (options) => {
+  const query = queryString.stringify(options, { skipEmptyString: true });
+  return axios.get(`/bills/current-user?${query}`);
 };
 
 export const getBillById = async (id) => {

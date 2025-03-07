@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
-import { getRoomById, updateRoom } from "../../services/roomService";
-import { useNavigate, useParams } from "react-router-dom";
+import { updateRoom } from "../../services/roomService";
+import { useLoaderData, useNavigate } from "react-router-dom";
 
 export default function UpdateRoom() {
+  const room = useLoaderData();
   const [formData, setFormData] = useState({
-    id: 0,
-    room_number: "",
-    area: 0,
-    price: 0,
-    status: "available",
-    description: "",
+    room_number: room.room_number,
+    area: room.area,
+    price: room.price,
+    status: room.status,
+    description: room.description,
   });
-  const { id } = useParams();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,24 +24,12 @@ export default function UpdateRoom() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateRoom(id, formData);
-
+      await updateRoom(room.id, formData);
       navigate("/admin/list-room");
     } catch (error) {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    if (!id) return;
-    getRoomById(id)
-      .then((room) => {
-        setFormData(room);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [id]);
 
   return (
     <Container className="my-5">

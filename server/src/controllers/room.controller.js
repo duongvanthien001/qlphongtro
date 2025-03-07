@@ -11,8 +11,8 @@ const getListSchema = querySchema.keys({
     .messages({
       "any.only": "Trạng thái phòng không hợp lệ",
     }),
-  user_id: Joi.number().optional().messages({
-    "number.base": "ID người dùng không hợp lệ",
+  tenant_id: Joi.number().optional().messages({
+    "number.base": "ID người thuê không hợp lệ",
   }),
 });
 
@@ -55,7 +55,7 @@ const roomController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const { page, limit, search, order, status, user_id } = value;
+    const { page, limit, search, order, status, tenant_id } = value;
 
     const where = {
       room_number: {
@@ -64,12 +64,10 @@ const roomController = {
       status,
     };
 
-    if (user_id) {
+    if (tenant_id) {
       where.contracts = {
         some: {
-          tenants: {
-            user_id,
-          },
+          tenant_id,
         },
       };
     }

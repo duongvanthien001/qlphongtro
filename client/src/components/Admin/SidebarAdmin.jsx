@@ -1,5 +1,5 @@
 import React from "react";
-import { Nav, Navbar } from "react-bootstrap";
+import { Dropdown, Nav, Navbar } from "react-bootstrap";
 import {
   FaChartLine,
   FaDollarSign,
@@ -14,12 +14,76 @@ import {
   FaWrench,
 } from "react-icons/fa";
 import { FcHome } from "react-icons/fc";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
+import clsx from "clsx";
+
+const menus = [
+  {
+    to: "/admin",
+    icon: <FaHome />,
+    title: "Trang chủ",
+  },
+  {
+    to: "/admin/list-room",
+    icon: <FaHouseUser />,
+    title: "Phòng",
+  },
+  {
+    to: "/admin/list-user",
+    icon: <FaUsers />,
+    title: "Người dùng",
+  },
+  {
+    to: "/admin/list-service",
+    icon: <FaServicestack />,
+    title: "Dịch vụ",
+  },
+  {
+    to: "/admin/list-tenant",
+    icon: <FaUserAlt />,
+    title: "Người thuê trọ",
+  },
+  {
+    to: "/admin/list-contract",
+    icon: <FaFileContract />,
+    title: "Hợp đồng",
+  },
+  {
+    to: "/admin/list-bill",
+    icon: <FaFileInvoice />,
+    title: "Hóa đơn",
+  },
+  {
+    to: "/admin/list-payment",
+    icon: <FaDollarSign />,
+    title: "Thanh toán",
+  },
+  {
+    to: "/admin/report",
+    icon: <FaChartLine />,
+    title: "Báo cáo",
+  },
+  {
+    to: "/admin/list-maintenances",
+    icon: <FaWrench />,
+    title: "Bảo trì",
+  },
+  {
+    to: "/logout",
+    icon: <FaSignOutAlt />,
+    title: "Đăng xuất",
+  },
+];
 
 export default function SidebarAdmin() {
+  const user = useLoaderData();
+
   return (
-    <div className="bg-dark text-white p-3 h-100" style={{ flex: "0 0 250px" }}>
-      <Navbar variant="dark" className="flex-column">
+    <div
+      className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
+      style={{ flex: "0 0 250px" }}
+    >
+      <Navbar variant="dark" className="flex-column mb-auto">
         <Navbar.Brand href="/admin" className="text-center mb-4">
           <span>
             <FcHome /> Phòng trọ NBD
@@ -27,106 +91,39 @@ export default function SidebarAdmin() {
         </Navbar.Brand>
 
         <Nav className="flex-column w-100">
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaHome /> Trang chủ
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-room"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaHouseUser /> Phòng
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-user"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaUsers /> Người dùng
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-service"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaServicestack /> Dịch vụ
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-tenant"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaUserAlt /> Người thuê trọ
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-contract"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaFileContract /> Hợp đồng
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-bill"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaFileInvoice /> Hóa đơn
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-payment"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaDollarSign /> Thanh toán
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/report"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaChartLine /> Báo cáo
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100 mb-2">
-            <Link
-              to="/admin/list-maintenances"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaWrench /> Bảo trì
-            </Link>
-          </Nav.Item>
-
-          <Nav.Item className="w-100">
-            <Link
-              to="/logout"
-              className="nav-link text-white d-flex align-items-center gap-2"
-            >
-              <FaSignOutAlt /> Đăng xuất
-            </Link>
-          </Nav.Item>
+          {menus.map((menu, i) => {
+            if (menu.to === "/admin/report" && user.role !== "admin") {
+              return null;
+            }
+            return (
+              <Nav.Item
+                className={clsx("w-100", menus.length - 1 !== i && "mb-2")}
+                key={menu.to}
+              >
+                <Link
+                  to={menu.to}
+                  className="nav-link text-white d-flex align-items-center gap-2"
+                >
+                  {menu.icon} {menu.title}
+                </Link>
+              </Nav.Item>
+            );
+          })}
         </Nav>
       </Navbar>
+      <Dropdown>
+        <Dropdown.Toggle
+          variant="link"
+          className="d-flex align-items-center gap-2 p-2 text-white w-100 text-start text-decoration-none"
+        >
+          <FaUserAlt /> {user?.full_name}
+        </Dropdown.Toggle>
+        <Dropdown.Menu variant="dark">
+          <Link to="/logout" className="dropdown-item">
+            <FaSignOutAlt /> Đăng xuất
+          </Link>
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   );
 }

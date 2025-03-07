@@ -15,10 +15,25 @@ router.get(
   asyncHandler(maintenancesController.getList)
 );
 
+router.get(
+  "/current",
+  authMiddleware,
+  checkRoles(["tenant"]),
+  (req, _res, next) => {
+    req.query.tenant_id = req.user.tenant_id;
+    next();
+  },
+  asyncHandler(maintenancesController.getList)
+);
+
 router.post(
   "/create",
   authMiddleware,
-  checkRoles(["admin", "staff", "tenant"]),
+  checkRoles(["tenant"]),
+  (req, res, next) => {
+    req.body.tenant_id = req.user.tenant_id;
+    next();
+  },
   asyncHandler(maintenancesController.create)
 );
 

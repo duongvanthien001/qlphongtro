@@ -11,6 +11,7 @@ const getListSchema = querySchema.keys({
     .messages({
       "any.only": "Trạng thái hóa đơn không hợp lệ",
     }),
+  tenant_id: Joi.number().optional(),
 });
 
 const createSchema = Joi.object({
@@ -44,21 +45,27 @@ const maintenancesController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const { page, limit, search, status } = value;
+    const { page, limit, search, status, tenant_id } = value;
+
+    const where = {
+      rooms: {
+        room_number: {
+          contains: search,
+        },
+      },
+      status,
+    };
+
+    if (tenant_id) {
+      where.tenant_id = tenant_id;
+    }
 
     if (!page) {
       const maintenances = await prisma.maintenances.findMany({
-        where: {
-          room: {
-            room_number: {
-              contains: search,
-            },
-          },
-          status,
-        },
+        where,
         include: {
-          room: true,
-          tenant: {
+          rooms: true,
+          tenants: {
             include: {
               users: true,
             },
@@ -73,17 +80,10 @@ const maintenancesController = {
     const maintenances = await prisma.maintenances.findMany({
       skip,
       take: limit,
-      where: {
-        room: {
-          room_number: {
-            contains: search,
-          },
-        },
-        status,
-      },
+      where,
       include: {
-        room: true,
-        tenant: {
+        rooms: true,
+        tenants: {
           include: {
             users: true,
           },
@@ -92,14 +92,7 @@ const maintenancesController = {
     });
 
     const total = await prisma.maintenances.count({
-      where: {
-        room: {
-          room_number: {
-            contains: search,
-          },
-        },
-        status,
-      },
+      where,
     });
 
     res.json({ maintenances, total, page, limit });
@@ -114,8 +107,8 @@ const maintenancesController = {
     const maintenances = await prisma.maintenances.create({
       data: value,
       include: {
-        room: true,
-        tenant: {
+        rooms: true,
+        tenants: {
           include: {
             users: true,
           },
@@ -145,8 +138,8 @@ const maintenancesController = {
       },
       data: value,
       include: {
-        room: true,
-        tenant: {
+        rooms: true,
+        tenants: {
           include: {
             users: true,
           },

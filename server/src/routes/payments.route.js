@@ -14,6 +14,12 @@ router.get(
   checkRoles(["admin", "staff"]),
   paymentController.getList
 );
+router.get(
+  "/:id",
+  authMiddleware,
+  checkRoles(["admin", "staff"]),
+  paymentController.getById
+);
 router.post(
   "/create",
   authMiddleware,

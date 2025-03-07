@@ -60,18 +60,22 @@ const Header = () => {
 
             {user && (
               <NavDropdown title={user.full_name} id="collapsible-nav-dropdown">
-                <Link
-                  to="/admin"
-                  className="dropdown-item d-flex align-items-center"
-                >
-                  <FaUserShield size={20} className="me-2" /> Admin
-                </Link>
-                <Link
-                  to="/profile"
-                  className="dropdown-item d-flex align-items-center"
-                >
-                  <FaUserCircle size={20} className="me-2" /> Hồ sơ
-                </Link>
+                {user.role !== "tenant" && (
+                  <Link
+                    to="/admin"
+                    className="dropdown-item d-flex align-items-center"
+                  >
+                    <FaUserShield size={20} className="me-2" /> Admin
+                  </Link>
+                )}
+                {user.role === "tenant" && (
+                  <Link
+                    to="/profile"
+                    className="dropdown-item d-flex align-items-center"
+                  >
+                    <FaUserCircle size={20} className="me-2" /> Hồ sơ
+                  </Link>
+                )}
                 <NavDropdown.Divider />
                 <Link
                   to="/logout"

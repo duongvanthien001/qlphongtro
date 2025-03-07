@@ -23,12 +23,14 @@ export default function Rooms() {
   const [rooms, setRooms] = useState(data.rooms);
   const [page, setPage] = useState(data.page);
   const [total, setTotal] = useState(data.total);
+  const [search, setSearch] = useState("");
+  const [order, setOrder] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [room, setRoom] = useState(null);
   const [isShowRoom, setIsShowRoom] = useState(false);
   const [isShowContract, setIsShowContract] = useState(false);
 
-  const fetchRooms = useCallback(async ({ page, search, order, status }) => {
+  const fetchRooms = useCallback(async ({ page, search, order }) => {
     setIsLoading(true);
     try {
       const data = await getRoomsCurrentUser({
@@ -36,7 +38,6 @@ export default function Rooms() {
         limit,
         search,
         order,
-        status,
       });
       setRooms(data.rooms);
       setTotal(data.total);
@@ -48,21 +49,9 @@ export default function Rooms() {
   }, []);
 
   const handleSort = async (e) => {
-    const value = e.target.value;
-    if (!value) {
-      await fetchRooms({ page });
-      return;
-    }
-    await fetchRooms({ page, order: value });
-  };
-
-  const handleSelectStatus = async (e) => {
-    const value = e.target.value;
-    if (!value) {
-      await fetchRooms({ page });
-      return;
-    }
-    await fetchRooms({ page, status: value });
+    const order = e.target.value;
+    setOrder(order);
+    await fetchRooms({ page, order, search });
   };
 
   const handleShowDetailModal = (room, type) => {
@@ -85,7 +74,8 @@ export default function Rooms() {
   const handleSearch = async (e) => {
     e.preventDefault();
     const search = e.target.search.value;
-    await fetchRooms({ page, search });
+    setSearch(search);
+    await fetchRooms({ page, search, order });
   };
 
   const contract = room?.contracts.find(
@@ -119,15 +109,7 @@ export default function Rooms() {
               </Form>
             </Col>
             <Col xs={3}>
-              <Form.Select onChange={handleSelectStatus}>
-                <option value="">Trạng thái</option>
-                <option value="available">Trống</option>
-                <option value="occupied">Đã thuê</option>
-                <option value="maintenance">Bảo trì</option>
-              </Form.Select>
-            </Col>
-            <Col xs={3}>
-              <Form.Select onChange={handleSort}>
+              <Form.Select value={order} onChange={handleSort}>
                 <option value="">Sắp xếp</option>
                 <option value="room_number:asc">Số phòng: A-Z</option>
                 <option value="room_number:desc">Số phòng: Z-A</option>

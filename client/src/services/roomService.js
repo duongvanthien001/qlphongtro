@@ -10,7 +10,9 @@ export const getRooms = async (options) => {
 };
 
 export const getRoomsCurrentUser = async (options) => {
-  const query = queryString.stringify(options);
+  const query = queryString.stringify(options, {
+    skipEmptyString: true,
+  });
 
   return axios.get(`/rooms/current-user?${query}`);
 };

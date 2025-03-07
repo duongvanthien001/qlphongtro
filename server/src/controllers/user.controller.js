@@ -276,11 +276,22 @@ const userController = {
       return res.status(400).json({ message: error.message });
     }
 
+    const { id_card, date_of_birth, address, ...userData } = value;
+
     const user = await prisma.users.update({
       where: {
         id,
       },
-      data: value,
+      data: {
+        ...userData,
+        tenants: {
+          update: {
+            id_card,
+            date_of_birth,
+            address,
+          },
+        },
+      },
       omit: { password: true },
       include: {
         tenants: true,

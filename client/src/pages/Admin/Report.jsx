@@ -1,61 +1,71 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Table, Button, Form } from "react-bootstrap";
-import { FaFileExcel, FaTrashAlt } from "react-icons/fa";
+import {
+  Container,
+  Row,
+  Col,
+  Table,
+  Button,
+  Form,
+  Card,
+} from "react-bootstrap";
+import { FaFileExcel } from "react-icons/fa";
+import { useLoaderData } from "react-router-dom";
+import { formatVnd } from "../../utils/formatVnd";
+import CountUp from "react-countup";
+import { getBills } from "../../services/billService";
 
 export default function Report() {
-  const [reportData, setReportData] = useState([
-    {
-      id: 1,
-      roomName: "Phòng 0",
-      date: "03/07/2023",
-      rent: "1,000,000 vnđ",
-      electricity: "17,500 vnđ",
-      water: "125,000 vnđ",
-      extraFee: "0 vnđ",
-      total: "1,142,500 vnđ",
-      status: "Đã thanh toán",
-    },
-  ]);
+  const loaderData = useLoaderData();
+  const { report, initialBills } = loaderData;
+  const [bills, setBills] = useState(initialBills);
+  const [month, setMonth] = useState("");
 
-  const totalIncome = "1,142,500 vnđ";
-  const totalDebt = "0 vnđ";
-  const totalElectricity = "17,500 vnđ";
-  const totalWater = "17,500 vnđ";
+  const fetchBills = async ({ month }) => {
+    try {
+      const bills = await getBills({
+        month,
+      });
+      setBills(bills);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const handleDelete = (id) => {
-    setReportData(reportData.filter((item) => item.id !== id));
+  const handleChangeMonth = (e) => {
+    setMonth(e.target.value);
+    fetchBills({ month: e.target.value });
   };
 
   return (
     <Container className="my-5">
       {/* Tổng quan */}
       <Row className="mb-4">
-        <Col md={3} className="text-center ">
-          <div className="border p-3">
+        <Col md={3} className="text-center">
+          <Card className="border p-3">
             <h5>Tổng thu</h5>
-            <p>{totalIncome}</p>
-          </div>
+            <CountUp end={report.totalIncome} suffix=" ₫" />
+          </Card>
         </Col>
 
         <Col md={3} className="text-center">
-          <div className="border p-3">
+          <Card className="border p-3">
             <h5>Tổng nợ</h5>
-            <p>{totalDebt}</p>
-          </div>
+            <CountUp end={report.totalDebt} suffix=" ₫" />
+          </Card>
         </Col>
 
         <Col md={3} className="text-center">
-          <div className="border p-3">
+          <Card className="border p-3">
             <h5>Tổng điện</h5>
-            <p>{totalElectricity}</p>
-          </div>
+            <CountUp end={report.totalElectricity} suffix=" ₫" />
+          </Card>
         </Col>
 
         <Col md={3} className="text-center">
-          <div className="border p-3">
+          <Card className="border p-3">
             <h5>Tổng nước</h5>
-            <p>{totalWater}</p>
-          </div>
+            <CountUp end={report.totalWater} suffix=" ₫" />
+          </Card>
         </Col>
       </Row>
 
@@ -65,11 +75,14 @@ export default function Report() {
           <Form.Control type="date" placeholder="Từ ngày đến ngày" />
         </Col>
         <Col md={4}>
-          <Form.Control as="select">
-            <option>Tháng 7</option>
-            <option>Tháng 8</option>
-            <option>Tháng 9</option>
-          </Form.Control>
+          <Form.Select value={month} onChange={handleChangeMonth}>
+            <option value="">Chọn tháng</option>
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i} value={i + 1}>
+                Tháng {i + 1}
+              </option>
+            ))}
+          </Form.Select>
         </Col>
         <Col md={4} className="text-right">
           <Button variant="primary">
@@ -80,35 +93,32 @@ export default function Report() {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>Tên phòng</th>
+            <th>Phòng</th>
             <th>Ngày</th>
             <th>Tiền phòng</th>
-            <th>Tiền điện</th>
-            <th>Tiền nước</th>
-            <th>Tiền phụ thu</th>
+            <th>Tiền dịch vụ</th>
             <th>Tổng tiền</th>
             <th>Trạng thái</th>
-            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {reportData.map((data, index) => (
-            <tr key={data.id}>
-              <td>{data.roomName}</td>
-              <td>{data.date}</td>
-              <td>{data.rent}</td>
-              <td>{data.electricity}</td>
-              <td>{data.water}</td>
-              <td>{data.extraFee}</td>
-              <td>{data.total}</td>
-              <td>{data.status}</td>
-              <td>
-                <Button variant="danger" onClick={() => handleDelete(data.id)}>
-                  <FaTrashAlt /> Xóa
-                </Button>
-              </td>
-            </tr>
-          ))}
+          {bills.map((bill) => {
+            return (
+              <tr key={bill.id}>
+                <td>{bill.contracts.rooms.room_number}</td>
+                <td>{new Date(bill.created_at).toLocaleDateString()}</td>
+                <td>{formatVnd(bill.contracts.rooms.price)}</td>
+                <td>{formatVnd(bill.service_fee)}</td>
+                <td>{formatVnd(bill.total_amount)}</td>
+                <td>
+                  {bill.status === "pending" && "Chưa thanh toán"}
+                  {bill.status === "paid" && "Đã thanh toán"}
+                  {bill.status === "partially_paid" && "Đã thanh toán một phần"}
+                  {bill.status === "overdue" && "Quá hạn"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
     </Container>
