@@ -84,7 +84,7 @@ model service_usage {
   bill_id       Int
   service_id    Int
   usage_amount  Decimal  @db.Decimal(10, 2)
-  recorded_date DateTime @default(now()) @db.Date
+  recorded_date DateTime @default(now()) @db.Timestamp(0)
   rooms         rooms    @relation(fields: [bill_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_1")
   services      services @relation(fields: [service_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_2")
   bills         bills    @relation(fields: [bill_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_3")
