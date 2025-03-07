@@ -12,6 +12,9 @@ export default function UpdateUser() {
     email: loaderUser.email,
     phone: loaderUser.phone,
     role: loaderUser.role,
+    id_card: loaderUser?.tenants.id_card || "",
+    date_of_birth: loaderUser?.tenants.date_of_birth || "",
+    address: loaderUser?.tenants.address || "",
   });
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,6 +28,13 @@ export default function UpdateUser() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (values.role !== "tenant") {
+      delete values.id_card;
+      delete values.date_of_birth;
+      delete values.address;
+    }
+
     try {
       setIsSubmitting(true);
       const { message } = await updateUser(loaderUser.id, values);
@@ -101,7 +111,7 @@ export default function UpdateUser() {
         </Row>
 
         <Row className="mb-3">
-          <Col>
+          <Col md={6}>
             <Form.Group controlId="role">
               <Form.Label>Vai trò</Form.Label>
               <Form.Select
@@ -115,7 +125,50 @@ export default function UpdateUser() {
               </Form.Select>
             </Form.Group>
           </Col>
+          {values.role === "tenant" && (
+            <Col md={6}>
+              <Form.Group controlId="id_card">
+                <Form.Label>CCCD/CMND</Form.Label>
+                <Form.Contract
+                  name="id_card"
+                  placeholder="Nhập CCCD/CMND"
+                  value={values.id_card}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          )}
         </Row>
+
+        {values.role === "tenant" && (
+          <Row className="mb-3">
+            <Col md={6}>
+              <Form.Group controlId="date_of_birth">
+                <Form.Label>Ngày sinh</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="date_of_birth"
+                  value={
+                    new Date(values.date_of_birth).toISOString().split("T")[0]
+                  }
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group controlId="address">
+                <Form.Label>Địa chỉ</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Nhập địa chỉ"
+                  name="address"
+                  value={values.address}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        )}
 
         <Button variant="primary" type="submit" disabled={isSubmitting}>
           {isSubmitting ? (

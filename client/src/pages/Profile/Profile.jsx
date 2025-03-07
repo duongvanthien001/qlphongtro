@@ -16,11 +16,9 @@ import { formatAxiosError } from "../../utils/formatAxiosError";
 export default function Profile() {
   const user = useLoaderData();
   const [values, setValues] = useState({
-    username: user.username,
     full_name: user.full_name,
     email: user.email,
     phone: user.phone,
-    role: user.role,
     id_card: user?.tenants?.id_card || "",
     date_of_birth: user?.tenants?.date_of_birth || "",
     address: user?.tenants?.address || "",
@@ -49,21 +47,13 @@ export default function Profile() {
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
 
-    if (values.role !== "tenant") {
-      delete values.id_card;
-      delete values.date_of_birth;
-      delete values.address;
-    }
-
     try {
       setIsSubmittingUpdate(true);
       const { user, message } = await updateCurrentUser(values);
       setValues({
-        username: user.username,
         full_name: user.full_name,
         email: user.email,
         phone: user.phone,
-        role: user.role,
         id_card: user?.tenants?.id_card || "",
         date_of_birth: user?.tenants?.date_of_birth || "",
         address: user?.tenants?.address || "",
@@ -110,9 +100,9 @@ export default function Profile() {
                   <Form.Control
                     type="text"
                     name="username"
-                    value={values.username}
+                    value={user.username}
                     onChange={handleChange}
-                    required
+                    disabled
                   />
                 </Form.Group>
               </Col>
@@ -152,66 +142,46 @@ export default function Profile() {
                   />
                 </Form.Group>
               </Col>
+
               <Col md={6} className="mb-4">
                 <Form.Group>
-                  <Form.Label>Vai trò</Form.Label>
-                  <Form.Select
+                  <Form.Label>CCCD/CMND</Form.Label>
+                  <Form.Control
                     type="text"
-                    name="role"
-                    value={values.role}
+                    name="id_card"
+                    value={values.id_card}
                     onChange={handleChange}
-                  >
-                    <option value="admin">Chủ trọ</option>
-                    <option value="staff">Nhân viên</option>
-                    <option value="tenant">Người thuê</option>
-                  </Form.Select>
+                    placeholder="Nhập CCCD/CMND"
+                    required
+                  />
                 </Form.Group>
               </Col>
-              {values.role === "tenant" && (
-                <>
-                  <Col md={6} className="mb-4">
-                    <Form.Group>
-                      <Form.Label>CCCD/CMND</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="id_card"
-                        value={values.id_card}
-                        onChange={handleChange}
-                        placeholder="Nhập CCCD/CMND"
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6} className="mb-4">
-                    <Form.Group>
-                      <Form.Label>Ngày sinh</Form.Label>
-                      <Form.Control
-                        type="date"
-                        name="date_of_birth"
-                        value={
-                          new Date(values.date_of_birth)
-                            .toISOString()
-                            .split("T")[0]
-                        }
-                        onChange={handleChange}
-                        placeholder="Chọn ngày sinh"
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6} className="mb-4">
-                    <Form.Group>
-                      <Form.Label>Địa chỉ (không bắt buộc)</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="address"
-                        value={values.address}
-                        onChange={handleChange}
-                        placeholder="Nhập địa chỉ"
-                      />
-                    </Form.Group>
-                  </Col>
-                </>
-              )}
+              <Col md={6} className="mb-4">
+                <Form.Group>
+                  <Form.Label>Ngày sinh</Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="date_of_birth"
+                    value={
+                      new Date(values.date_of_birth).toISOString().split("T")[0]
+                    }
+                    onChange={handleChange}
+                    placeholder="Chọn ngày sinh"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6} className="mb-4">
+                <Form.Group>
+                  <Form.Label>Địa chỉ (không bắt buộc)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="address"
+                    value={values.address}
+                    onChange={handleChange}
+                    placeholder="Nhập địa chỉ"
+                  />
+                </Form.Group>
+              </Col>
             </Row>
 
             <Button
