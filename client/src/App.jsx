@@ -66,8 +66,11 @@ const router = createBrowserRouter([
         path: "",
         element: <HomeLayout />,
         loader: async () => {
-          const user = await getCurrentUser();
-          return user;
+          if (localStorage.getItem("token")) {
+            const user = await getCurrentUser();
+            return user;
+          }
+          return null;
         },
         children: [
           { index: true, element: <Home /> },
