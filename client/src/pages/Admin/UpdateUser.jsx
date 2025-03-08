@@ -6,15 +6,24 @@ import { toast } from "react-hot-toast";
 
 export default function UpdateUser() {
   const loaderUser = useLoaderData();
+
+  const id_card = loaderUser?.tenants?.id_card || "";
+
+  const date_of_birth = loaderUser.tenants
+    ? new Date(loaderUser.tenants.date_of_birth).toISOString().split("T")[0]
+    : "";
+
+  const address = loaderUser?.tenants?.address || "";
+
   const [values, setValues] = useState({
     username: loaderUser.username,
     full_name: loaderUser.full_name,
     email: loaderUser.email,
     phone: loaderUser.phone,
     role: loaderUser.role,
-    id_card: loaderUser?.tenants.id_card || "",
-    date_of_birth: loaderUser?.tenants.date_of_birth || "",
-    address: loaderUser?.tenants.address || "",
+    id_card,
+    date_of_birth,
+    address,
   });
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -129,7 +138,8 @@ export default function UpdateUser() {
             <Col md={6}>
               <Form.Group controlId="id_card">
                 <Form.Label>CCCD/CMND</Form.Label>
-                <Form.Contract
+                <Form.Control
+                  type="text"
                   name="id_card"
                   placeholder="Nhập CCCD/CMND"
                   value={values.id_card}
@@ -148,9 +158,7 @@ export default function UpdateUser() {
                 <Form.Control
                   type="date"
                   name="date_of_birth"
-                  value={
-                    new Date(values.date_of_birth).toISOString().split("T")[0]
-                  }
+                  value={values.date_of_birth}
                   onChange={handleChange}
                 />
               </Form.Group>

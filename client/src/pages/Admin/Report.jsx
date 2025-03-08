@@ -9,15 +9,14 @@ import {
   Card,
 } from "react-bootstrap";
 import { FaFileExcel } from "react-icons/fa";
-import { useLoaderData } from "react-router-dom";
+import { Navigate, useLoaderData } from "react-router-dom";
 import { formatVnd } from "../../utils/formatVnd";
 import CountUp from "react-countup";
 import { getBills } from "../../services/billService";
 
 export default function Report() {
   const loaderData = useLoaderData();
-  const { report, initialBills } = loaderData;
-  const [bills, setBills] = useState(initialBills);
+  const [bills, setBills] = useState(loaderData?.initialBills || []);
   const [month, setMonth] = useState("");
 
   const fetchBills = async ({ month }) => {
@@ -35,6 +34,12 @@ export default function Report() {
     setMonth(e.target.value);
     fetchBills({ month: e.target.value });
   };
+
+  if (!loaderData) {
+    return <Navigate to="/admin" />;
+  }
+
+  const { report } = loaderData;
 
   return (
     <Container className="my-5">
