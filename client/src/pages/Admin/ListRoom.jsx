@@ -94,6 +94,7 @@ export default function ListRoom() {
         room={room}
         handleClose={handleCloseRoomDetailModal}
         show={isShowRoomDetailModal}
+        setRooms={setRooms}
       />
       <h2 className="my-4">Tất cả phòng</h2>
 

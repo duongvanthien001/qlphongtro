@@ -377,11 +377,45 @@ const userController = {
       value: { id },
     } = paramsSchema.validate(req.params);
 
+    const user = await prisma.users.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        tenants: {
+          include: {
+            contracts: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
     await prisma.users.delete({
       where: {
         id,
       },
     });
+
+    if (user.tenants) {
+      const roomIds = user.tenants.contracts.map(
+        (contract) => contract.room_id
+      );
+
+      await prisma.rooms.updateMany({
+        where: {
+          id: {
+            in: roomIds,
+          },
+        },
+        data: {
+          status: "available",
+        },
+      });
+    }
 
     res.status(200).json({ message: "Xóa thành công" });
   },

@@ -187,11 +187,31 @@ const contractController = {
       value: { id },
     } = paramsSchema.validate(req.params);
 
-    await prisma.contracts.delete({
+    const contract = await prisma.contracts.findUnique({
       where: {
         id,
       },
     });
+
+    if (!contract) {
+      return res.status(404).json({ message: "Không tìm thấy hợp đồng" });
+    }
+
+    await Promise.all([
+      prisma.contracts.delete({
+        where: {
+          id,
+        },
+      }),
+      prisma.rooms.update({
+        where: {
+          id: contract.room_id,
+        },
+        data: {
+          status: "available",
+        },
+      }),
+    ]);
 
     res.json({
       message: "Xóa hợp đồng thành công",

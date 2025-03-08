@@ -61,8 +61,7 @@ const ListTenant = () => {
     await fetchTenants({ page, order, search });
   };
 
-  const handleDeleteTenant = async (e, id) => {
-    e.preventDefault();
+  const handleDeleteTenant = async (id) => {
     try {
       await deleteUser(id);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
@@ -152,7 +151,7 @@ const ListTenant = () => {
                   </Link>
                   <Button
                     variant="danger"
-                    onClick={(e) => handleDeleteTenant(e, user.id)}
+                    onClick={() => handleDeleteTenant(user.id)}
                   >
                     <FaTrashAlt /> Xóa
                   </Button>

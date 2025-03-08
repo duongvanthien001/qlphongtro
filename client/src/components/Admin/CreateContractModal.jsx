@@ -16,6 +16,7 @@ export default function CreateContractModal({
   handleClose,
   handleCloseRoomDetailModal,
   room_id,
+  setRooms,
 }) {
   const [values, setValues] = useState(INITIAL_VALUES);
   const [users, setUsers] = useState([]);
@@ -31,6 +32,14 @@ export default function CreateContractModal({
       setIsSubmitting(true);
       const data = await createContract({ ...values, room_id });
       setValues(INITIAL_VALUES);
+      setRooms((prevRooms) =>
+        prevRooms.map((room) => {
+          if (room.id === room_id) {
+            return { ...room, status: "occupied" };
+          }
+          return room;
+        })
+      );
       toast.success(data.message);
       handleClose();
       handleCloseRoomDetailModal();

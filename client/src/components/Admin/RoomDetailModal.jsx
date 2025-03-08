@@ -5,7 +5,7 @@ import { useState } from "react";
 import CreateBillModal from "./CreateBillModal";
 import toast from "react-hot-toast";
 
-export default function RoomDetailModal({ show, handleClose, room }) {
+export default function RoomDetailModal({ show, handleClose, room, setRooms }) {
   const [isShowCreateContract, setIsShowCreateContract] = useState(false);
   const [isShowCreateBill, setIsShowCreateBill] = useState(false);
 
@@ -47,6 +47,7 @@ export default function RoomDetailModal({ show, handleClose, room }) {
             room_id={room.id}
             handleClose={handleCloseCreateContract}
             handleCloseRoomDetailModal={handleClose}
+            setRooms={setRooms}
           />
         </>
       )}
@@ -125,12 +126,14 @@ export default function RoomDetailModal({ show, handleClose, room }) {
           <Button variant="secondary" onClick={handleClose}>
             Đóng
           </Button>
-          <Button
-            variant="success"
-            onClick={() => setIsShowCreateContract(true)}
-          >
-            Tạo hợp đồng
-          </Button>
+          {room?.status === "available" && (
+            <Button
+              variant="success"
+              onClick={() => setIsShowCreateContract(true)}
+            >
+              Tạo hợp đồng
+            </Button>
+          )}
           <Button variant="primary" onClick={handleOpenCreateBill}>
             Tạo hóa đơn
           </Button>

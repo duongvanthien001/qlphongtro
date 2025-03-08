@@ -370,7 +370,9 @@ const router = createBrowserRouter([
             loader: async () => {
               try {
                 const [rooms, users] = await Promise.all([
-                  getRooms(),
+                  getRooms({
+                    status: "available",
+                  }),
                   getUsers({ role: "tenant" }),
                 ]);
                 return { rooms, users };
