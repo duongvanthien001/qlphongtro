@@ -12,6 +12,7 @@
     "bootstrap": "^5.3.3",
     "clsx": "^2.1.1",
     "exact": "^1.0.1",
+    "file-saver": "^2.0.5",
     "observer-infinite-scroll": "^1.2.7",
     "query-string": "^9.1.1",
     "react": "^19.0.0",
@@ -22,7 +23,8 @@
     "react-icons": "^5.4.0",
     "react-router-dom": "^7.2.0",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

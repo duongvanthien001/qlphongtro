@@ -13,6 +13,7 @@ import { Navigate, useLoaderData } from "react-router-dom";
 import { formatVnd } from "../../utils/formatVnd";
 import CountUp from "react-countup";
 import { getBills } from "../../services/billService";
+import exportToExcel from "../../utils/exportToExcel";
 
 export default function Report() {
   const loaderData = useLoaderData();
@@ -40,6 +41,16 @@ export default function Report() {
   }
 
   const { report } = loaderData;
+
+  const excelBills = bills.map((bill) => ({
+    Phòng: bill.contracts.rooms.room_number,
+    Ngày: new Date(bill.created_at).toLocaleDateString(),
+    "Tiền phòng": formatVnd(bill.contracts.rooms.price),
+    "Tiền dịch vụ": formatVnd(bill.service_fee),
+    "Tổng tiền": formatVnd(bill.total_amount),
+    "Trạng thái":
+      bill.status === "pending" ? "Chưa thanh toán" : "Đã thanh toán",
+  }));
 
   return (
     <Container className="my-5">
@@ -90,7 +101,10 @@ export default function Report() {
           </Form.Select>
         </Col>
         <Col md={4} className="text-right">
-          <Button variant="primary">
+          <Button
+            variant="primary"
+            onClick={() => exportToExcel(excelBills, "report.xlsx")}
+          >
             <FaFileExcel /> Xuất Excel báo cáo
           </Button>
         </Col>

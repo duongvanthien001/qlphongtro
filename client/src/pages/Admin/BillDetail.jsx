@@ -63,7 +63,7 @@ export default function BillDetail() {
             Tổng tiền: {formatVnd(bill.total_amount)}
           </h4>
         </Col>
-        <Col md={6} className="d-flex justify-content-end">
+        <Col md={6} className="d-flex justify-content-end d-print-none">
           <Button
             variant="warning"
             className="me-2"

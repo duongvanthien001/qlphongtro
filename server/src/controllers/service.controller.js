@@ -23,6 +23,13 @@ const createSchema = Joi.object({
   unit: Joi.string().required().messages({
     "string.empty": "Đơn vị không được để trống",
   }),
+  type: Joi.string()
+    .valid(...TYPE)
+    .required()
+    .messages({
+      "any.only": "Loại dịch vụ không hợp lệ",
+      "string.empty": "Loại dịch vụ không được để trống",
+    }),
 });
 
 const updateSchema = Joi.object({

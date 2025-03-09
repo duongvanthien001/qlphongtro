@@ -80,7 +80,7 @@ export default function SidebarAdmin() {
 
   return (
     <div
-      className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
+      className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark d-print-none"
       style={{ flex: "0 0 250px" }}
     >
       <Navbar variant="dark" className="flex-column mb-auto">

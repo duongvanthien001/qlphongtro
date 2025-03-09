@@ -9,6 +9,7 @@ export default function CreateNewService() {
     name: "",
     unit_price: 0,
     unit: "",
+    type: "",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,11 +75,26 @@ export default function CreateNewService() {
             required
           />
         </Form.Group>
+        <Form.Group controlId="type" className="mb-3">
+          <Form.Label>Loại dịch vụ</Form.Label>
+          <Form.Select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Chọn loại dịch vụ</option>
+            <option value="electricity">Điện</option>
+            <option value="water">Nước</option>
+            <option value="internet">Internet</option>
+            <option value="other">Dịch vụ khác</option>
+          </Form.Select>
+        </Form.Group>
 
         <Button variant="primary" type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
-              <Spinner animation="border" /> Loading...
+              <Spinner animation="border" size="sm" /> Loading...
             </>
           ) : (
             "Lưu"
