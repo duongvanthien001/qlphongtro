@@ -141,7 +141,6 @@ export default function UpdateUser() {
                 name="password"
                 value={values.password}
                 onChange={handleChange}
-                required
               />
             </Form.Group>
           </Col>
