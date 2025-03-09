@@ -20,6 +20,7 @@ export default function CreateNewTenant() {
     phone: "",
     password: "",
     date_of_birth: "",
+    role: "tenant",
     id_card: "",
     address: "",
   });
@@ -39,7 +40,7 @@ export default function CreateNewTenant() {
     try {
       setIsSubmitting(true);
       await createUser(values);
-      navigate("/admin/list-user");
+      navigate("/admin/list-tenant");
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

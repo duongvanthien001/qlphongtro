@@ -14,6 +14,7 @@ import { deleteUser, getUsers } from "../../services/userService";
 import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { paginationItems } from "../../utils/paginationItems";
 import { formatAxiosError } from "../../utils/formatAxiosError";
+import { toast } from "react-hot-toast";
 
 const limit = 8;
 
@@ -66,7 +67,7 @@ export default function ListUser() {
       await deleteUser(id);
       setUsers((prev) => prev.filter((user) => user.id !== id));
     } catch (error) {
-      console.log(formatAxiosError(error));
+      toast.success(formatAxiosError(error));
     }
   };
 

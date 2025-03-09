@@ -25,7 +25,7 @@ router.get(
 router.post(
   "/create",
   authMiddleware,
-  checkRoles(["admin"]),
+  checkRoles(["admin", "staff"]),
   asyncHandler(userController.create)
 );
 router.put(

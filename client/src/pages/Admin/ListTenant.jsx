@@ -136,8 +136,11 @@ const ListTenant = () => {
                 <td>{user.email}</td>
                 <td>{user.phone}</td>
                 <td>
-                  {user.tenants.contracts.map((contract) => (
-                    <span key={contract.id}>{contract.rooms.room_number}</span>
+                  {user.tenants.contracts.map((contract, i) => (
+                    <span key={contract.id}>
+                      {contract.rooms.room_number}
+                      {i < user.tenants.contracts.length - 1 && ","}
+                    </span>
                   ))}
                 </td>
                 <td>{formatAge(user.tenants.date_of_birth)}</td>

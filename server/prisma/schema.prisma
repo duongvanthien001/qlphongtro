@@ -99,6 +99,7 @@ model services {
   name          String          @db.VarChar(50)
   unit_price    Decimal         @db.Decimal(10, 2)
   unit          String          @db.VarChar(20)
+  type          services_type
   service_usage service_usage[]
 }
 
@@ -147,6 +148,13 @@ enum rooms_status {
   available
   occupied
   maintenance
+}
+
+enum services_type {
+  electricity
+  water
+  internet
+  other
 }
 
 enum bills_status {

@@ -65,6 +65,7 @@ const updateSchema = Joi.object({
     .optional()
     .messages({ "any.only": "Vai trò không hợp lệ" }),
   phone: Joi.string().optional(),
+  password: Joi.string().optional(),
   id_card: Joi.string().optional(),
   date_of_birth: Joi.date().optional(),
   address: Joi.string().optional(),
@@ -277,6 +278,10 @@ const userController = {
     }
 
     const { id_card, date_of_birth, address, ...userData } = value;
+
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 12);
+    }
 
     const user = await prisma.users.update({
       where: {

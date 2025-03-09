@@ -20,33 +20,19 @@ export default function CreateNewUser() {
     phone: "",
     password: "",
     role: "admin",
-    date_of_birth: "",
-    id_card: "",
-    address: "",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTenant, setIsTenant] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = async (e) => {
     const name = e.target.name;
     const value = e.target.value;
     setValues({ ...values, [name]: value });
-
-    if (name === "role") {
-      setIsTenant(value === "tenant");
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (values.role !== "tenant") {
-      delete values.date_of_birth;
-      delete values.id_card;
-      delete values.address;
-    }
 
     try {
       setIsSubmitting(true);
@@ -153,59 +139,9 @@ export default function CreateNewUser() {
                     >
                       <option value="admin">Chủ trọ</option>
                       <option value="staff">Nhân viên</option>
-                      <option value="tenant">Người thuê</option>
                     </Form.Select>
                   </Form.Group>
                 </Col>
-
-                {isTenant && (
-                  <>
-                    <Col md={6}>
-                      <Form.Group
-                        controlId="formBasicDateOfBirth"
-                        className="mb-4"
-                      >
-                        <Form.Label>Ngày sinh</Form.Label>
-                        <Form.Control
-                          type="date"
-                          placeholder="Chọn ngày sinh"
-                          name="date_of_birth"
-                          value={values.date_of_birth}
-                          onChange={handleChange}
-                          required
-                        />
-                      </Form.Group>
-                    </Col>
-
-                    <Col md={6}>
-                      <Form.Group controlId="formBasicIdCard" className="mb-4">
-                        <Form.Label>CCCD/CMND</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Nhập số CCCD/CMND"
-                          name="id_card"
-                          value={values.id_card}
-                          onChange={handleChange}
-                          required
-                        />
-                      </Form.Group>
-                    </Col>
-
-                    <Col md={6}>
-                      <Form.Group controlId="formBasicAddress" className="mb-4">
-                        <Form.Label>Địa chỉ (không bắt buộc)</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Nhập địa chỉ"
-                          name="address"
-                          value={values.address}
-                          onChange={handleChange}
-                          required
-                        />
-                      </Form.Group>
-                    </Col>
-                  </>
-                )}
               </Row>
 
               {/* Submit button */}

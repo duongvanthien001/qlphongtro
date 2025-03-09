@@ -3,6 +3,7 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import { createBill } from "../../services/billService";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import { formatVnd } from "../../utils/formatVnd";
 
 const date = new Date();
 date.setDate(date.getDate() + 3);
@@ -12,24 +13,42 @@ const INITIAL_VALUES = {
   due_date: date.toISOString().split("T")[0],
   electricity_index: 0,
   water_index: 0,
-  include_garbage_fee: false,
+  service_ids: [],
 };
 
 export default function CreateNewBill() {
-  const contracts = useLoaderData();
+  const { contracts, services } = useLoaderData();
   const [values, setValues] = useState(INITIAL_VALUES);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = async (e) => {
-    const type = e.target.type;
     const name = e.target.name;
     const value = e.target.value;
-    setValues({
-      ...values,
-      [name]: type === "checkbox" ? e.target.checked : value,
-    });
+    const type = e.target.type;
+
+    if (type === "checkbox") {
+      const serviceId = parseInt(name.split("_")[1]);
+      const isChecked = e.target.checked;
+
+      setValues((prev) => {
+        if (isChecked) {
+          return { ...prev, service_ids: [...prev.service_ids, serviceId] };
+        }
+        return {
+          ...prev,
+          service_ids: prev.service_ids.filter((id) => id !== serviceId),
+        };
+      });
+
+      return;
+    }
+
+    setValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -54,7 +73,7 @@ export default function CreateNewBill() {
       {error && <div className="alert alert-danger">{error}</div>}
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
-          <Col md={4}>
+          <Col xs={12} md={6}>
             <Form.Group>
               <Form.Label>Chỉ số điện (kWh)</Form.Label>
               <Form.Control
@@ -68,7 +87,7 @@ export default function CreateNewBill() {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+          <Col xs={12} md={6}>
             <Form.Group>
               <Form.Label>Chỉ số nước (m³)</Form.Label>
               <Form.Control
@@ -82,7 +101,24 @@ export default function CreateNewBill() {
               />
             </Form.Group>
           </Col>
-          <Col md={4}>
+        </Row>
+
+        <Row className="mb-3">
+          <Col xs={12} md={6}>
+            <Form.Group>
+              <Form.Label>Phòng</Form.Label>
+              <Form.Select name="contract_id" onChange={handleChange} required>
+                <option value="">Chọn phòng</option>
+                {contracts.map((contract) => (
+                  <option key={contract.id} value={contract.id}>
+                    {contract.rooms.room_number} -{" "}
+                    {contract.tenants.users.full_name}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col xs={12} md={6}>
             <Form.Group>
               <Form.Label>Hạn thanh toán</Form.Label>
               <Form.Control
@@ -96,30 +132,20 @@ export default function CreateNewBill() {
         </Row>
 
         <Row className="mb-3">
-          <Col md={12}>
-            <Form.Group className="mb-3">
-              <Form.Label>Phòng</Form.Label>
-              <Form.Select name="contract_id" onChange={handleChange} required>
-                <option value="">Chọn phòng</option>
-                {contracts.map((contract) => (
-                  <option key={contract.id} value={contract.id}>
-                    {contract.rooms.room_number} -{" "}
-                    {contract.tenants.users.full_name}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={12}>
-            <Form.Check
-              type="checkbox"
-              label="Bao gồm tiền rác"
-              id="include_garbage_fee"
-              checked={values.include_garbage_fee}
-              name="include_garbage_fee"
-              onChange={handleChange}
-            />
-          </Col>
+          {services.map((service) => (
+            <Col key={service.id}>
+              <Form.Check
+                type="checkbox"
+                label={`Tiền ${service.name} - ${formatVnd(
+                  service.unit_price
+                )}/${service.unit}`}
+                id={`service_${service.id}`}
+                name={`service_${service.id}`}
+                checked={values.service_ids.includes(service.id)}
+                onChange={handleChange}
+              />
+            </Col>
+          ))}
         </Row>
 
         <Button variant="primary" type="submit" disabled={isSubmitting}>

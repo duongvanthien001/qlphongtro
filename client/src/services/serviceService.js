@@ -5,7 +5,6 @@ export const getServices = async (options) => {
   const query = queryString.stringify(options, {
     skipEmptyString: true,
   });
-
   return await axios.get(`/services?${query}`);
 };
 

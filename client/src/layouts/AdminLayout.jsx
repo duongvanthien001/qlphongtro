@@ -1,8 +1,9 @@
-import { Navigate, Outlet, useLoaderData } from "react-router-dom";
+import { Navigate, Outlet, useLoaderData, useLocation } from "react-router-dom";
 import SidebarAdmin from "../components/Admin/SidebarAdmin";
 
 export default function AdminLayout() {
   const user = useLoaderData();
+  const pathname = useLocation().pathname;
 
   if (!user) {
     return <Navigate to="/login" />;
@@ -10,6 +11,10 @@ export default function AdminLayout() {
 
   if (user.role === "tenant") {
     return <Navigate to="/" />;
+  }
+
+  if (user.role !== "admin" && pathname === "/admin/list-user") {
+    return <Navigate to="/admin" />;
   }
 
   return (

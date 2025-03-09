@@ -203,6 +203,18 @@ const roomController = {
       value: { id },
     } = paramsSchema.validate(req.params);
 
+    const room = await prisma.rooms.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (room.status === "occupied") {
+      return res.status(400).json({
+        message: "Không thể xóa phòng đang có người thuê",
+      });
+    }
+
     await prisma.rooms.delete({
       where: {
         id,

@@ -16,6 +16,7 @@ import RoomDetailModal from "../../components/Admin/RoomDetailModal";
 import Pagination from "react-bootstrap/Pagination";
 import { paginationItems } from "../../utils/paginationItems";
 import { formatAxiosError } from "../../utils/formatAxiosError";
+import { toast } from "react-hot-toast";
 
 const limit = 8;
 
@@ -47,7 +48,7 @@ export default function ListRoom() {
 
       setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
     } catch (error) {
-      console.log(error);
+      toast.error(formatAxiosError(error));
     }
   };
 

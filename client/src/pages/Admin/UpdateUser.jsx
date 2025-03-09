@@ -21,6 +21,7 @@ export default function UpdateUser() {
     email: loaderUser.email,
     phone: loaderUser.phone,
     role: loaderUser.role,
+    password: "",
     id_card,
     date_of_birth,
     address,
@@ -61,7 +62,7 @@ export default function UpdateUser() {
       <h2 className="mb-4">Sửa người dùng</h2>
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group controlId="username">
               <Form.Label>Username</Form.Label>
               <Form.Control
@@ -71,11 +72,11 @@ export default function UpdateUser() {
                 value={values.username}
                 onChange={handleChange}
                 required
+                disabled
               />
             </Form.Group>
           </Col>
-
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group controlId="full_name">
               <Form.Label>Họ và tên</Form.Label>
               <Form.Control
@@ -88,10 +89,7 @@ export default function UpdateUser() {
               />
             </Form.Group>
           </Col>
-        </Row>
-
-        <Row className="mb-3">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group controlId="email">
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -104,7 +102,10 @@ export default function UpdateUser() {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
+        </Row>
+
+        <Row className="mb-3">
+          <Col md={4}>
             <Form.Group controlId="phone">
               <Form.Label>Số điện thoại</Form.Label>
               <Form.Control
@@ -117,10 +118,7 @@ export default function UpdateUser() {
               />
             </Form.Group>
           </Col>
-        </Row>
-
-        <Row className="mb-3">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group controlId="role">
               <Form.Label>Vai trò</Form.Label>
               <Form.Select
@@ -134,8 +132,24 @@ export default function UpdateUser() {
               </Form.Select>
             </Form.Group>
           </Col>
-          {values.role === "tenant" && (
-            <Col md={6}>
+          <Col md={4}>
+            <Form.Group controlId="password">
+              <Form.Label>Mật khẩu</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Để trống nếu không muốn thay đổi"
+                name="password"
+                value={values.password}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        {values.role === "tenant" && (
+          <Row className="mb-3">
+            <Col md={4}>
               <Form.Group controlId="id_card">
                 <Form.Label>CCCD/CMND</Form.Label>
                 <Form.Control
@@ -147,12 +161,7 @@ export default function UpdateUser() {
                 />
               </Form.Group>
             </Col>
-          )}
-        </Row>
-
-        {values.role === "tenant" && (
-          <Row className="mb-3">
-            <Col md={6}>
+            <Col md={4}>
               <Form.Group controlId="date_of_birth">
                 <Form.Label>Ngày sinh</Form.Label>
                 <Form.Control
@@ -163,7 +172,7 @@ export default function UpdateUser() {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={4}>
               <Form.Group controlId="address">
                 <Form.Label>Địa chỉ</Form.Label>
                 <Form.Control

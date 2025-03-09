@@ -95,6 +95,10 @@ export default function SidebarAdmin() {
             if (menu.to === "/admin/report" && user.role !== "admin") {
               return null;
             }
+
+            if (menu.to === "/admin/list-user" && user.role !== "admin") {
+              return null;
+            }
             return (
               <Nav.Item
                 className={clsx("w-100", menus.length - 1 !== i && "mb-2")}

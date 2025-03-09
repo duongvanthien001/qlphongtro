@@ -65,6 +65,7 @@ export default function UpdateTenant() {
                 value={formData.username}
                 onChange={handleChange}
                 required
+                disabled
               />
             </Form.Group>
           </Col>

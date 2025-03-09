@@ -36,6 +36,9 @@ const createSchema = Joi.object({
     "any.required": "Hạn thanh toán không được bỏ trống",
     "date.base": "Hạn thanh toán không hợp lệ",
   }),
+  service_ids: Joi.array().items(Joi.number()).optional().messages({
+    "array.base": "Mảng dịch vụ không hợp lệ",
+  }),
 });
 
 const updateSchema = Joi.object({
@@ -184,9 +187,9 @@ const billController = {
     const {
       electricity_index,
       water_index,
-      include_garbage_fee,
       due_date,
       contract_id,
+      service_ids,
     } = value;
 
     const [contract, services] = await Promise.all([
@@ -200,16 +203,16 @@ const billController = {
     ]);
 
     const service_fee = services.reduce((acc, service) => {
-      if (service.name === "Điện") {
+      if (service.type === "electricity") {
         return acc + service.unit_price.toNumber() * electricity_index;
-      } else if (service.name === "Nước") {
+      } else if (service.type === "water") {
         return acc + service.unit_price.toNumber() * water_index;
-      } else if (service.name === "Internet") {
-        return acc + service.unit_price.toNumber();
-      } else if (service.name === "Rác" && include_garbage_fee) {
+      } else if (service.type === "internet") {
         return acc + service.unit_price.toNumber();
       }
-      return acc;
+      return service_ids.includes(service.id)
+        ? acc + service.unit_price.toNumber()
+        : acc;
     }, 0);
 
     const room_fee = contract.rooms.price.toNumber();
@@ -228,27 +231,30 @@ const billController = {
 
     const service_usage_data = [
       {
-        service_id: services.find((service) => service.name === "Điện").id,
+        service_id: services.find((service) => service.type === "electricity")
+          .id,
         bill_id: bill.id,
         usage_amount: electricity_index,
       },
       {
-        service_id: services.find((service) => service.name === "Nước").id,
+        service_id: services.find((service) => service.type === "water").id,
         bill_id: bill.id,
         usage_amount: water_index,
       },
       {
-        service_id: services.find((service) => service.name === "Internet").id,
+        service_id: services.find((service) => service.type === "internet").id,
         bill_id: bill.id,
         usage_amount: 1,
       },
     ];
 
-    if (include_garbage_fee) {
-      service_usage_data.push({
-        service_id: services.find((service) => service.name === "Rác").id,
-        bill_id: bill.id,
-        usage_amount: 1,
+    if (service_ids.length) {
+      service_ids.forEach((service_id) => {
+        service_usage_data.push({
+          service_id,
+          bill_id: bill.id,
+          usage_amount: 1,
+        });
       });
     }
 

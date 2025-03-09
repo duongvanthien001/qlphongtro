@@ -2,6 +2,17 @@ const prisma = require("../configs/prisma.config");
 const Joi = require("joi");
 const { querySchema, paramsSchema } = require("../schemas/index.schema");
 
+const TYPE = ["electricity", "water", "internet", "other"];
+
+const getListSchema = querySchema.keys({
+  type: Joi.string()
+    .valid(...TYPE)
+    .optional()
+    .messages({
+      "any.only": "Loại dịch vụ không hợp lệ",
+    }),
+});
+
 const createSchema = Joi.object({
   name: Joi.string().required().messages({
     "string.empty": "Tên không được để trống",
@@ -22,13 +33,13 @@ const updateSchema = Joi.object({
 
 const serviceController = {
   async getList(req, res) {
-    const { value, error } = querySchema.validate(req.query);
+    const { value, error } = getListSchema.validate(req.query);
 
     if (error) {
       return res.status(400).json({ message: error.message });
     }
 
-    const { search, page, order, limit } = value;
+    const { search, page, order, limit, type } = value;
 
     if (!page) {
       const services = await prisma.services.findMany({
@@ -36,6 +47,7 @@ const serviceController = {
           name: {
             contains: search,
           },
+          type,
         },
         orderBy: order,
       });
@@ -48,6 +60,7 @@ const serviceController = {
         name: {
           contains: search,
         },
+        type,
       },
       orderBy: order,
       take: limit,
@@ -59,6 +72,7 @@ const serviceController = {
         name: {
           contains: search,
         },
+        type,
       },
     });
 
@@ -90,13 +104,11 @@ const serviceController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const { name, unit_price, unit } = value;
-
     const service = await prisma.services.create({
       data: value,
     });
 
-    res.json({ message: "Thêm dịch vụ thành công", service });
+    res.status(201).json({ message: "Thêm dịch vụ thành công", service });
   },
 
   async update(req, res) {

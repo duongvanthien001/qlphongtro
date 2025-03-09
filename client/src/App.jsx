@@ -386,8 +386,11 @@ const router = createBrowserRouter([
             element: <CreateNewBill />,
             loader: async () => {
               try {
-                const contracts = await getContracts({ status: "active" });
-                return contracts;
+                const [contracts, services] = await Promise.all([
+                  getContracts({ status: "active" }),
+                  getServices({ type: "other", order: "id:asc" }),
+                ]);
+                return { contracts, services };
               } catch (error) {
                 return [];
               }
