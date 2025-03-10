@@ -45,11 +45,21 @@ const analystController = {
     const totalWater =
       await prisma.$queryRaw`SELECT SUM(s.unit_price * su.usage_amount) as total FROM services s LEFT JOIN service_usage su ON s.id = su.service_id WHERE s.name = 'Nước'`;
 
+    const oldestYearOfBill = await prisma.bills.findFirst({
+      select: {
+        created_at: true,
+      },
+      orderBy: {
+        created_at: "asc",
+      },
+    });
+
     res.json({
       totalIncome: totalIncome._sum.amount,
       totalDebt: totalDebt[0].total,
       totalElectricity: totalElectricity[0].total,
       totalWater: totalWater[0].total,
+      oldestYearOfBill: oldestYearOfBill.created_at.getFullYear(),
     });
   },
 };

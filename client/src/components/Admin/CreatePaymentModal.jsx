@@ -5,8 +5,13 @@ import { toast } from "react-hot-toast";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 
 export default function CreatePaymentModal({ show, handleClose, bill }) {
+  const total_paid = bill.payments.reduce(
+    (acc, payment) => acc + payment.amount,
+    0
+  );
+
   const [values, setValues] = useState({
-    amount: bill.total_amount,
+    amount: bill.total_amount - total_paid,
     payment_method: "cash",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,13 +29,13 @@ export default function CreatePaymentModal({ show, handleClose, bill }) {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const data = await createPayment({
+      const { message, payment } = await createPayment({
         bill_id: bill.id,
         ...values,
       });
-      toast.success(data.message);
+      toast.success(message);
       setValues({
-        amount: bill.total_amount,
+        amount: bill.total_amount - total_paid - payment.amount,
         payment_method: "cash",
       });
       handleClose();
@@ -76,13 +81,13 @@ export default function CreatePaymentModal({ show, handleClose, bill }) {
           <Button variant="secondary" onClick={handleClose}>
             Đóng
           </Button>
-          <Button variant="primary" type="submit" disabled={isSubmitting}>
+          <Button variant="success" type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Spinner animation="border" size="sm" /> Loading...
               </>
             ) : (
-              "Tạo"
+              "Thanh toán"
             )}
           </Button>
         </Modal.Footer>

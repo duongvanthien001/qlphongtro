@@ -15,6 +15,10 @@ export const getMaintenancesByCurrentUser = async (options) => {
   return axios.get(`/maintenances/current?${query}`);
 };
 
+export const getMaintenanceById = async (id) => {
+  return axios.get(`/maintenances/${id}`);
+};
+
 export const createMaintenance = async (data) => {
   return axios.post("/maintenances/create", data);
 };

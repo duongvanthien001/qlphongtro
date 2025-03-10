@@ -9,6 +9,7 @@ export default function UpdateBill() {
     total_amount: bill.total_amount,
     status: bill.status,
     due_date: bill.due_date,
+    created_at: bill.created_at,
   });
   const navigate = useNavigate();
   const [isSubmiting, setIsSubmiting] = useState(false);
@@ -68,7 +69,19 @@ export default function UpdateBill() {
         </Row>
 
         <Row className="mb-3">
-          <Col md={12}>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Ngày tạo</Form.Label>
+              <Form.Control
+                type="date"
+                name="created_at"
+                value={new Date(values.created_at).toISOString().split("T")[0]}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
             <Form.Group>
               <Form.Label>Trạng thái</Form.Label>
               <Form.Select

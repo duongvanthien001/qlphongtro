@@ -32,8 +32,14 @@ const updateSchema = Joi.object({
     .messages({
       "any.only": "Trạng thái bảo trì không hợp lệ",
     }),
-  resolved_date: Joi.date().optional().messages({
-    "date.base": "Ngày giải quyết không hợp lệ",
+  resolved_date: Joi.date()
+    .optional()
+    .messages({
+      "date.base": "Ngày giải quyết không hợp lệ",
+    })
+    .allow(null),
+  request_date: Joi.date().optional().messages({
+    "date.base": "Ngày yêu cầu không hợp lệ",
   }),
 });
 
@@ -48,9 +54,11 @@ const maintenancesController = {
     const { page, limit, search, status, tenant_id } = value;
 
     const where = {
-      rooms: {
-        room_number: {
-          contains: search,
+      tenants: {
+        users: {
+          full_name: {
+            contains: search,
+          },
         },
       },
       status,
@@ -97,6 +105,33 @@ const maintenancesController = {
 
     res.json({ maintenances, total, page, limit });
   },
+
+  getById: async (req, res) => {
+    const {
+      value: { id },
+    } = paramsSchema.validate(req.params);
+
+    const maintenances = await prisma.maintenances.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        rooms: true,
+        tenants: {
+          include: {
+            users: true,
+          },
+        },
+      },
+    });
+
+    if (!maintenances) {
+      return res.status(404).json({ message: "Không tìm thấy bảo trì" });
+    }
+
+    res.json(maintenances);
+  },
+
   create: async (req, res) => {
     const { value, error } = createSchema.validate(req.body);
 
@@ -132,7 +167,11 @@ const maintenancesController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const maintenances = await prisma.maintenances.update({
+    if (value.status === "completed" && !value.resolved_date) {
+      value.resolved_date = new Date();
+    }
+
+    const maintenance = await prisma.maintenances.update({
       where: {
         id,
       },
@@ -149,7 +188,7 @@ const maintenancesController = {
 
     res.json({
       message: "Cập nhật bảo trì thành công",
-      maintenances,
+      maintenance,
     });
   },
   delete: async (req, res) => {

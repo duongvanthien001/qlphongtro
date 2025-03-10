@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Row,
@@ -15,26 +15,37 @@ import CountUp from "react-countup";
 import { getBills } from "../../services/billService";
 import exportToExcel from "../../utils/exportToExcel";
 
+const currentYear = new Date().getFullYear();
+
 export default function Report() {
   const loaderData = useLoaderData();
   const [bills, setBills] = useState(loaderData?.initialBills || []);
-  const [month, setMonth] = useState("");
+  const [date, setDate] = useState({
+    month: "",
+    year: "",
+  });
 
-  const fetchBills = async ({ month }) => {
+  const fetchBills = async (date) => {
     try {
-      const bills = await getBills({
-        month,
-      });
+      const bills = await getBills(date);
       setBills(bills);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleChangeMonth = (e) => {
-    setMonth(e.target.value);
-    fetchBills({ month: e.target.value });
+  const handleChangeDate = (e) => {
+    const { name, value } = e.target;
+    setDate({
+      ...date,
+      [name]: value,
+    });
+    fetchBills({ ...date, [name]: value });
   };
+
+  useEffect(() => {
+    console.log(loaderData.report);
+  }, [loaderData]);
 
   if (!loaderData) {
     return <Navigate to="/admin" />;
@@ -51,6 +62,11 @@ export default function Report() {
     "Trạng thái":
       bill.status === "pending" ? "Chưa thanh toán" : "Đã thanh toán",
   }));
+
+  const years = Array.from(
+    { length: currentYear - (report.oldestYearOfBill - 1) },
+    (_, i) => currentYear - i
+  );
 
   return (
     <Container className="my-5">
@@ -87,11 +103,12 @@ export default function Report() {
 
       {/* Bộ lọc */}
       <Row className="mb-4">
-        <Col md={4}>
-          <Form.Control type="date" placeholder="Từ ngày đến ngày" />
-        </Col>
-        <Col md={4}>
-          <Form.Select value={month} onChange={handleChangeMonth}>
+        <Col md={2}>
+          <Form.Select
+            name="month"
+            value={date.month}
+            onChange={handleChangeDate}
+          >
             <option value="">Chọn tháng</option>
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i} value={i + 1}>
@@ -100,12 +117,26 @@ export default function Report() {
             ))}
           </Form.Select>
         </Col>
-        <Col md={4} className="text-right">
+        <Col md={2} className="me-auto">
+          <Form.Select
+            name="year"
+            value={date.year}
+            onChange={handleChangeDate}
+          >
+            <option value="">Chọn năm</option>
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </Form.Select>
+        </Col>
+        <Col md={2} className="d-flex justify-content-end">
           <Button
             variant="primary"
             onClick={() => exportToExcel(excelBills, "report.xlsx")}
           >
-            <FaFileExcel /> Xuất Excel báo cáo
+            <FaFileExcel /> Xuất Excel
           </Button>
         </Col>
       </Row>

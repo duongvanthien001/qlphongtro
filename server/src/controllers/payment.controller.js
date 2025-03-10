@@ -105,6 +105,28 @@ const paymentController = {
       return res.status(400).json({ message: error.message });
     }
 
+    const bill = await prisma.bills.findUnique({
+      where: { id: value.bill_id },
+      include: {
+        payments: true,
+      },
+    });
+
+    if (!bill) {
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
+    }
+
+    const totalPaid = bill.payments.reduce(
+      (acc, payment) => acc + payment.amount.toNumber(),
+      0
+    );
+
+    if (totalPaid + value.amount > bill.total_amount) {
+      return res
+        .status(400)
+        .json({ message: "Số tiền thanh toán không được lớn hơn tổng tiền" });
+    }
+
     const payment = await prisma.payments.create({
       data: value,
       include: {
@@ -112,13 +134,11 @@ const paymentController = {
       },
     });
 
-    console.log(payment);
-
     await prisma.bills.update({
       where: { id: value.bill_id },
       data: {
         status:
-          payment.amount.toNumber() === payment.bills.total_amount.toNumber()
+          totalPaid + value.amount === bill.total_amount
             ? "paid"
             : "partially_paid",
       },
@@ -148,9 +168,22 @@ const paymentController = {
       value: { id },
     } = paramsSchema.validate(req.params);
 
-    await prisma.payments.delete({
+    const payment = await prisma.payments.delete({
       where: {
         id,
+      },
+    });
+
+    const payments = await prisma.payments.findMany({
+      where: {
+        bill_id: payment.bill_id,
+      },
+    });
+
+    await prisma.bills.update({
+      where: { id: payment.bill_id },
+      data: {
+        status: payments.length === 0 ? "pending" : "partially_paid",
       },
     });
 

@@ -11,7 +11,6 @@ import {
 } from "react-bootstrap";
 import { Link, useLoaderData } from "react-router-dom";
 import { deletePayment, getPayments } from "../../services/paymentService";
-import { FaPlus } from "react-icons/fa";
 import { paginationItems } from "../../utils/paginationItems";
 import { formatVnd } from "../../utils/formatVnd";
 
@@ -22,56 +21,44 @@ export default function ListPayment() {
   const [payments, setPayments] = useState(data.payments);
   const [total, setTotal] = useState(data.total);
   const [page, setPage] = useState(data.page);
-  const [search, setSearch] = useState("");
   const [order, setOrder] = useState("");
   const [payment_method, setPaymentMethod] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchPayments = useCallback(
-    async ({ page, search, order, payment_method }) => {
-      try {
-        setIsLoading(true);
-        const data = await getPayments({
-          page,
-          limit,
-          search,
-          order,
-          payment_method,
-        });
-        setPayments(data.payments);
-        setPage(data.page);
-        setTotal(data.total);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    []
-  );
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    const search = e.target.search.value;
-    setSearch(search);
-    await fetchPayments({ page, search, order, payment_method });
-  };
+  const fetchPayments = useCallback(async ({ page, order, payment_method }) => {
+    try {
+      setIsLoading(true);
+      const data = await getPayments({
+        page,
+        limit,
+        order,
+        payment_method,
+      });
+      setPayments(data.payments);
+      setPage(data.page);
+      setTotal(data.total);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const handleSort = async (e) => {
     const order = e.target.value;
     setOrder(order);
 
-    await fetchPayments({ page, order, search, payment_method });
+    await fetchPayments({ page, order, payment_method });
   };
 
   const handleChangePaymentMethod = async (e) => {
     const payment_method = e.target.value;
     setPaymentMethod(payment_method);
-    await fetchPayments({ page, payment_method, search, order });
+    await fetchPayments({ page, payment_method, order });
   };
 
   const handleChangePage = async (page) => {
-    await fetchPayments({ page, search, payment_method, order });
+    await fetchPayments({ page, payment_method, order });
   };
 
   const handleDelete = async (e, id) => {
@@ -87,16 +74,6 @@ export default function ListPayment() {
     <Container>
       <h2 className="my-4">Thanh toán</h2>
       <Row className="mb-4 d-flex">
-        <Col xs={3} className="position-relative">
-          <Form onSubmit={handleSearch}>
-            <Form.Control
-              type="search"
-              placeholder="Tìm kiếm..."
-              name="search"
-              id="search"
-            />
-          </Form>
-        </Col>
         <Col xs={3}>
           <Form.Select onChange={handleChangePaymentMethod}>
             <option value="">Phương thức thanh toán</option>
@@ -114,13 +91,6 @@ export default function ListPayment() {
             <option value="created_at:desc">Ngày tạo: Mới nhất</option>
             <option value="created_at:asc">Ngày tạo: Cũ nhất</option>
           </Form.Select>
-        </Col>
-        <Col xs={3} className="ms-auto d-flex justify-content-end">
-          <Link to="/admin/create-new-payment">
-            <Button variant="primary">
-              <FaPlus /> Thêm thanh toán
-            </Button>
-          </Link>
         </Col>
       </Row>
 

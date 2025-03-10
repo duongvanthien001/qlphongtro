@@ -45,6 +45,7 @@ import {
   getBillsCurrentUser,
 } from "./services/billService";
 import {
+  getMaintenanceById,
   getMaintenances,
   getMaintenancesByCurrentUser,
 } from "./services/maintenancesService";
@@ -54,6 +55,7 @@ import UpdateBill from "./pages/Admin/UpdateBill";
 import CreateNewBill from "./pages/Admin/CreateNewBill";
 import UpdatePayment from "./pages/Admin/UpdatePayment";
 import NotFound from "./pages/NotFound";
+import UpdateMaintenance from "./pages/Admin/UpdateMaintenance";
 
 const options = { page: 1, limit: 8 };
 
@@ -362,6 +364,20 @@ const router = createBrowserRouter([
               }
             },
           },
+
+          {
+            path: "update-maintenance/:id",
+            element: <UpdateMaintenance />,
+            loader: async ({ params }) => {
+              const { id } = params;
+              try {
+                const maintenance = await getMaintenanceById(id);
+                return maintenance;
+              } catch (error) {
+                return null;
+              }
+            },
+          },
           { path: "create-new-service", element: <CreateNewService /> },
           { path: "create-new-tenant", element: <CreateNewTenant /> },
           {
@@ -396,7 +412,7 @@ const router = createBrowserRouter([
               }
             },
           },
-          { path: "add-user", element: <CreateNewUser /> },
+          { path: "create-new-user", element: <CreateNewUser /> },
           {
             path: "bill/:id",
             element: <BillDetail />,

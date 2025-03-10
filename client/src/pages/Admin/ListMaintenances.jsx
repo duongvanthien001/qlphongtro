@@ -54,6 +54,7 @@ export default function ListMaintenances() {
   );
 
   const handleSearch = async (e) => {
+    e.preventDefault();
     const search = e.target.search.value;
     setSearch(search);
     await fetchMaintenances({ page, status, search, order });

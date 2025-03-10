@@ -14,6 +14,9 @@ const getListSchema = querySchema.keys({
   month: Joi.number().optional().messages({
     "number.base": "Tháng không hợp lệ",
   }),
+  year: Joi.number().optional().messages({
+    "number.base": "Năm không hợp lệ",
+  }),
   tenant_id: Joi.number().optional().messages({
     "number.base": "Id người thuê không hợp lệ",
   }),
@@ -62,11 +65,24 @@ const billController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const { page, limit, search, order, status, month, tenant_id } = value;
+    const { page, limit, search, order, status, month, year, tenant_id } =
+      value;
 
     const where = {
       status,
     };
+
+    if (search) {
+      where.contracts = {
+        tenants: {
+          users: {
+            full_name: {
+              contains: search,
+            },
+          },
+        },
+      };
+    }
 
     if (tenant_id) {
       where.contracts = {
@@ -74,10 +90,19 @@ const billController = {
       };
     }
 
+    const newMonth = month || new Date().getMonth() + 1;
+
     if (month) {
       where.created_at = {
-        gte: new Date(new Date().getFullYear(), month - 1, 1),
-        lt: new Date(new Date().getFullYear(), month, 1),
+        gte: new Date(year || new Date().getFullYear(), month - 1, 1),
+        lt: new Date(year || new Date().getFullYear(), month, 1),
+      };
+    }
+
+    if (year) {
+      where.created_at = {
+        gte: new Date(year, newMonth - 1, 1),
+        lt: new Date(year + 1, newMonth, 1),
       };
     }
 
@@ -100,6 +125,7 @@ const billController = {
               services: true,
             },
           },
+          payments: true,
         },
         orderBy: order,
       });
@@ -126,6 +152,7 @@ const billController = {
             services: true,
           },
         },
+        payments: true,
       },
       orderBy: order,
       skip,
@@ -168,6 +195,7 @@ const billController = {
             services: true,
           },
         },
+        payments: true,
       },
     });
 

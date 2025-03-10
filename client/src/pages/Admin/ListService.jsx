@@ -50,7 +50,7 @@ export default function ListService() {
 
   return (
     <Container>
-      <h2 className="my-4">Danh sách dịch vụ</h2>
+      <h2 className="my-4">Dịch vụ</h2>
 
       <Row className="mb-4 d-flex">
         <Col xs={3} className="position-relative">

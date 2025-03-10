@@ -53,13 +53,25 @@ const contractController = {
       return res.status(400).json({ message: error.message });
     }
 
-    const { page, limit, order, status } = value;
+    const { page, limit, order, status, search } = value;
+
+    const where = {
+      status,
+    };
+
+    if (search) {
+      where.tenants = {
+        users: {
+          full_name: {
+            contains: search,
+          },
+        },
+      };
+    }
 
     if (!page) {
       const contracts = await prisma.contracts.findMany({
-        where: {
-          status,
-        },
+        where,
         include: {
           tenants: {
             include: {
@@ -76,9 +88,7 @@ const contractController = {
     const skip = (page - 1) * limit;
 
     const contracts = await prisma.contracts.findMany({
-      where: {
-        status,
-      },
+      where,
       include: {
         tenants: {
           include: {
@@ -93,9 +103,7 @@ const contractController = {
     });
 
     const total = await prisma.contracts.count({
-      where: {
-        status,
-      },
+      where,
     });
 
     res.json({ contracts, page, limit, total });

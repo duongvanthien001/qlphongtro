@@ -47,7 +47,7 @@
 
 /* Reviews Section */
 .reviews {
-  padding: 50px 20px;
+  padding: 80px 20px;
   background-color: #ffffff;
 }
 
@@ -65,7 +65,7 @@
 .review-card {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
   margin-right: 50px;
   flex: 1;
   display: flex;

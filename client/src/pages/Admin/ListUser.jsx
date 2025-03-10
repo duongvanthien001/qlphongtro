@@ -110,7 +110,7 @@ export default function ListUser() {
           </Form.Select>
         </Col>
         <Col xs={3} className="ms-auto d-flex justify-content-end">
-          <Link to="/admin/add-user">
+          <Link to="/admin/create-new-user">
             <Button variant="primary">
               <FaPlus /> Thêm người dùng
             </Button>

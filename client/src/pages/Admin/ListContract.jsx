@@ -87,7 +87,7 @@ export default function ListContract() {
 
   return (
     <Container>
-      <h2 className="my-4">Danh sách hợp đồng</h2>
+      <h2 className="my-4">Hợp đồng</h2>
 
       <Row className="mb-4 d-flex">
         <Col xs={3} className="position-relative">

@@ -26,6 +26,13 @@ router.get(
   asyncHandler(maintenancesController.getList)
 );
 
+router.get(
+  "/:id",
+  authMiddleware,
+  checkRoles(["admin", "staff"]),
+  asyncHandler(maintenancesController.getById)
+);
+
 router.post(
   "/create",
   authMiddleware,
