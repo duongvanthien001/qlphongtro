@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { Navigate, useLoaderData, useNavigate } from "react-router-dom";
 import { updateBill } from "../../services/billService";
-import { Form, Button, Col, Container, Row, Spinner } from "react-bootstrap";
+import {
+  Form,
+  Button,
+  Col,
+  Container,
+  Row,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 export default function UpdateBill() {
   const bill = useLoaderData();
@@ -13,6 +22,7 @@ export default function UpdateBill() {
   });
   const navigate = useNavigate();
   const [isSubmiting, setIsSubmiting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setValues({
@@ -28,7 +38,7 @@ export default function UpdateBill() {
       await updateBill(bill.id, values);
       navigate("/admin/list-bill");
     } catch (error) {
-      console.log(error);
+      setError(formatAxiosError(error));
     } finally {
       setIsSubmiting(false);
     }
@@ -39,6 +49,9 @@ export default function UpdateBill() {
   return (
     <Container className="my-5">
       <h2 className="mb-4">Sửa hóa đơn</h2>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Col md={6}>

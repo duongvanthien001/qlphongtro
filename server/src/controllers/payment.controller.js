@@ -121,7 +121,9 @@ const paymentController = {
       0
     );
 
-    if (totalPaid + value.amount > bill.total_amount) {
+    const newAmount = totalPaid + value.amount;
+
+    if (newAmount > bill.total_amount) {
       return res
         .status(400)
         .json({ message: "Số tiền thanh toán không được lớn hơn tổng tiền" });
@@ -138,7 +140,7 @@ const paymentController = {
       where: { id: value.bill_id },
       data: {
         status:
-          totalPaid + value.amount === bill.total_amount
+          newAmount === bill.total_amount.toNumber()
             ? "paid"
             : "partially_paid",
       },

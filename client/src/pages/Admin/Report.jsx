@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Row,
@@ -42,10 +42,6 @@ export default function Report() {
     });
     fetchBills({ ...date, [name]: value });
   };
-
-  useEffect(() => {
-    console.log(loaderData.report);
-  }, [loaderData]);
 
   if (!loaderData) {
     return <Navigate to="/admin" />;

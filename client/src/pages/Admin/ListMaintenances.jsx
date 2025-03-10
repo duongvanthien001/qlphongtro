@@ -17,6 +17,7 @@ import {
   deleteMaintenance,
   getMaintenances,
 } from "../../services/maintenancesService";
+import toast from "react-hot-toast";
 
 const limit = 8;
 
@@ -79,7 +80,7 @@ export default function ListMaintenances() {
         prev.filter((maintenance) => maintenance.id !== id)
       );
     } catch (error) {
-      console.log(formatAxiosError(error));
+      toast.error(formatAxiosError(error));
     }
   };
 

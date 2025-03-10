@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { updateContract } from "../../services/contractService";
-import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Form,
+  Row,
+  Spinner,
+} from "react-bootstrap";
+import toast from "react-hot-toast";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 export default function UpdateContract() {
   const contract = useLoaderData();
@@ -13,6 +23,7 @@ export default function UpdateContract() {
   });
   const navigate = useNavigate();
   const [isSubmiting, setIsSubmiting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setValues({
@@ -25,10 +36,11 @@ export default function UpdateContract() {
     e.preventDefault();
     try {
       setIsSubmiting(true);
-      await updateContract(contract.id, values);
+      const { message } = await updateContract(contract.id, values);
       navigate("/admin/list-contract");
+      toast.success(message);
     } catch (error) {
-      console.log(error);
+      setError(formatAxiosError(error));
     } finally {
       setIsSubmiting(false);
     }
@@ -37,6 +49,9 @@ export default function UpdateContract() {
   return (
     <Container className="my-5">
       <h2 className="mb-4">Sửa hợp đồng</h2>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Col md={6}>

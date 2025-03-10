@@ -4,6 +4,7 @@ import { createBill } from "../../services/billService";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { formatVnd } from "../../utils/formatVnd";
+import toast from "react-hot-toast";
 
 const date = new Date();
 date.setDate(date.getDate() + 3);
@@ -56,9 +57,10 @@ export default function CreateNewBill() {
 
     try {
       setIsSubmitting(true);
-      await createBill(values);
+      const { message } = await createBill(values);
       setValues(INITIAL_VALUES);
       navigate("/admin/list-bill");
+      toast.success(message);
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

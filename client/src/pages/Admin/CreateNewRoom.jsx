@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { createRoom } from "../../services/roomService";
 import { useNavigate } from "react-router-dom";
 import { formatAxiosError } from "../../utils/formatAxiosError";
+import toast from "react-hot-toast";
 
 export default function CreateNewRoom() {
   const navigate = useNavigate();
@@ -27,8 +28,9 @@ export default function CreateNewRoom() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      await createRoom(formData);
+      const { message } = await createRoom(formData);
       navigate("/admin/list-room");
+      toast.success(message);
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

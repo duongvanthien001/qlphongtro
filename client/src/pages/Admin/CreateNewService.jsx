@@ -3,6 +3,7 @@ import { Container, Form, Button, Spinner } from "react-bootstrap";
 import { createService } from "../../services/serviceService";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function CreateNewService() {
   const [formData, setFormData] = useState({
@@ -26,8 +27,9 @@ export default function CreateNewService() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      await createService(formData);
+      const { message } = await createService(formData);
       navigate("/admin/list-service");
+      toast.success(message);
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

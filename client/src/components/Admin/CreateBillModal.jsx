@@ -64,7 +64,7 @@ export default function CreateBillModal({
       handleClose();
       handleCloseRoomDetailModal();
     } catch (error) {
-      console.log(formatAxiosError(error));
+      toast.error(formatAxiosError(error));
     } finally {
       setIsSubmitting(false);
     }

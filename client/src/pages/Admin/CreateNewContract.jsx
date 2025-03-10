@@ -3,6 +3,7 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import { createContract } from "../../services/contractService";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import toast from "react-hot-toast";
 
 const INITIAL_VALUES = {
   room_id: "",
@@ -30,9 +31,10 @@ export default function CreateNewContract() {
 
     try {
       setIsSubmitting(true);
-      await createContract(values);
+      const { message } = await createContract(values);
       setValues(INITIAL_VALUES);
       navigate("/admin/list-contract");
+      toast.success(message);
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

@@ -15,7 +15,7 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.json("API QLPhongTro");
 });
 

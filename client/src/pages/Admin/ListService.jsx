@@ -4,6 +4,8 @@ import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { Link, useLoaderData } from "react-router-dom";
 import { deleteService, getServices } from "../../services/serviceService";
 import { formatVnd } from "../../utils/formatVnd";
+import toast from "react-hot-toast";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 export default function ListService() {
   const initialServices = useLoaderData();
@@ -31,7 +33,7 @@ export default function ListService() {
         prevServices.filter((service) => service.id !== id)
       );
     } catch (error) {
-      console.log(error);
+      toast.error(formatAxiosError(error));
     }
   };
 

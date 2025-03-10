@@ -66,7 +66,7 @@ const ListTenant = () => {
       await deleteUser(id);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
     } catch (error) {
-      console.log(error);
+      toast.error(formatAxiosError(error));
     }
   };
 

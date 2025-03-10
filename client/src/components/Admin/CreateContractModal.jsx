@@ -3,6 +3,7 @@ import { Button, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 import { createContract } from "../../services/contractService";
 import { toast } from "react-hot-toast";
 import { getUsers } from "../../services/userService";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 const INITIAL_VALUES = {
   tenant_id: "",
@@ -44,7 +45,7 @@ export default function CreateContractModal({
       handleClose();
       handleCloseRoomDetailModal();
     } catch (error) {
-      console.log(error);
+      toast.error(formatAxiosError(error));
     } finally {
       setIsSubmitting(false);
     }

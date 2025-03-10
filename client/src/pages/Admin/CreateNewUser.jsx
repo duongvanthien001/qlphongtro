@@ -11,6 +11,7 @@ import {
 import { createUser } from "../../services/userService";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function CreateNewUser() {
   const [values, setValues] = useState({
@@ -36,8 +37,9 @@ export default function CreateNewUser() {
 
     try {
       setIsSubmitting(true);
-      await createUser(values);
+      const { message } = await createUser(values);
       navigate("/admin/list-user");
+      toast.success(message);
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

@@ -1,8 +1,17 @@
 import React, { useState } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { updateUser } from "../../services/userService";
-import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Form,
+  Row,
+  Spinner,
+} from "react-bootstrap";
 import { toast } from "react-hot-toast";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 export default function UpdateUser() {
   const loaderUser = useLoaderData();
@@ -28,6 +37,7 @@ export default function UpdateUser() {
   });
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setValues({
@@ -51,7 +61,7 @@ export default function UpdateUser() {
       navigate("/admin/list-user");
       toast.success(message);
     } catch (error) {
-      console.log(error);
+      setError(formatAxiosError(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -60,6 +70,9 @@ export default function UpdateUser() {
   return (
     <Container className="my-5">
       <h2 className="mb-4">Sửa người dùng</h2>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Col md={4}>

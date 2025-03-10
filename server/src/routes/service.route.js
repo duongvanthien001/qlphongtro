@@ -32,7 +32,7 @@ router.post(
 router.put(
   "/update/:id",
   authMiddleware,
-  checkRoles(["admin"]),
+  checkRoles(["admin", "staff"]),
   asyncHandler(serviceController.update)
 );
 

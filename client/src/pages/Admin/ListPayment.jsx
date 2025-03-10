@@ -13,6 +13,8 @@ import { Link, useLoaderData } from "react-router-dom";
 import { deletePayment, getPayments } from "../../services/paymentService";
 import { paginationItems } from "../../utils/paginationItems";
 import { formatVnd } from "../../utils/formatVnd";
+import toast from "react-hot-toast";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 const limit = 8;
 
@@ -66,7 +68,7 @@ export default function ListPayment() {
       await deletePayment(id);
       setPayments((prev) => prev.filter((payment) => payment.id !== id));
     } catch (error) {
-      console.log(error);
+      toast.error(formatAxiosError(error));
     }
   };
 

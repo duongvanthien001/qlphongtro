@@ -71,9 +71,11 @@ export default function BillDetail() {
           >
             <FaPrint /> In hóa đơn
           </Button>
-          <Button variant="success" onClick={() => setIsShowModal(true)}>
-            <FaDollarSign /> Thanh toán
-          </Button>
+          {bill.status !== "paid" && (
+            <Button variant="success" onClick={() => setIsShowModal(true)}>
+              <FaDollarSign /> Thanh toán
+            </Button>
+          )}
         </Col>
       </Row>
     </Container>

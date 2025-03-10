@@ -3,6 +3,7 @@ import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { createPayment } from "../../services/paymentService";
 import { toast } from "react-hot-toast";
 import { formatAxiosError } from "../../utils/formatAxiosError";
+import { useNavigate } from "react-router-dom";
 
 export default function CreatePaymentModal({ show, handleClose, bill }) {
   const total_paid = bill.payments.reduce(
@@ -16,6 +17,7 @@ export default function CreatePaymentModal({ show, handleClose, bill }) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const type = e.target.type;
@@ -38,7 +40,7 @@ export default function CreatePaymentModal({ show, handleClose, bill }) {
         amount: bill.total_amount - total_paid - payment.amount,
         payment_method: "cash",
       });
-      handleClose();
+      navigate("/admin/list-payment");
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

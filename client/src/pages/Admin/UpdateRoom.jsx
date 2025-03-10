@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { updateRoom } from "../../services/roomService";
 import { useLoaderData, useNavigate } from "react-router-dom";
+import { formatAxiosError } from "../../utils/formatAxiosError";
 
 export default function UpdateRoom() {
   const room = useLoaderData();
@@ -13,6 +14,8 @@ export default function UpdateRoom() {
     description: room.description,
   });
   const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -24,16 +27,22 @@ export default function UpdateRoom() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       await updateRoom(room.id, formData);
       navigate("/admin/list-room");
     } catch (error) {
-      console.log(error);
+      setError(formatAxiosError(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Container className="my-5">
       <h2 className="mb-4">Sửa Phòng</h2>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Col md={6}>
@@ -115,7 +124,7 @@ export default function UpdateRoom() {
           </Col>
         </Row>
 
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" disabled={isSubmitting}>
           Lưu
         </Button>
       </Form>

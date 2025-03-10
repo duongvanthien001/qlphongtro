@@ -67,7 +67,7 @@ export default function ListUser() {
       await deleteUser(id);
       setUsers((prev) => prev.filter((user) => user.id !== id));
     } catch (error) {
-      toast.success(formatAxiosError(error));
+      toast.error(formatAxiosError(error));
     }
   };
 

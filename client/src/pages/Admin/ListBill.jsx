@@ -151,26 +151,32 @@ export default function ListBill() {
                 </td>
                 <td>{new Date(bill.due_date).toLocaleDateString("vi")}</td>
                 <td>{new Date(bill.created_at).toLocaleDateString("vi")}</td>
-                <td>
-                  <Link to={`/admin/bill/${bill.id}`} className="me-2">
-                    <Button variant="primary">
-                      <FaFileInvoice />
-                      Chi tiết
+                <td
+                  style={{
+                    minWidth: 283,
+                  }}
+                >
+                  <div className="d-flex text-nowrap">
+                    <Link to={`/admin/bill/${bill.id}`} className="me-2">
+                      <Button variant="primary">
+                        <FaFileInvoice />
+                        Chi tiết
+                      </Button>
+                    </Link>
+                    <Link to={`/admin/update-bill/${bill.id}`} className="me-2">
+                      <Button variant="warning">
+                        <FaEdit />
+                        Sửa
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="danger"
+                      onClick={(e) => handleDelete(e, bill.id)}
+                    >
+                      <FaTrashAlt />
+                      Xóa
                     </Button>
-                  </Link>
-                  <Link to={`/admin/update-bill/${bill.id}`} className="me-2">
-                    <Button variant="warning">
-                      <FaEdit />
-                      Sửa
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="danger"
-                    onClick={(e) => handleDelete(e, bill.id)}
-                  >
-                    <FaTrashAlt />
-                    Xóa
-                  </Button>
+                  </div>
                 </td>
               </tr>
             ))}

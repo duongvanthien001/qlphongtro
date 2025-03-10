@@ -15,6 +15,7 @@ import { deleteContract, getContracts } from "../../services/contractService";
 import { paginationItems } from "../../utils/paginationItems";
 import { formatAxiosError } from "../../utils/formatAxiosError";
 import { formatVnd } from "../../utils/formatVnd";
+import toast from "react-hot-toast";
 
 const limit = 8;
 
@@ -77,7 +78,7 @@ export default function ListContract() {
       await deleteContract(id);
       setContacts((prev) => prev.filter((contract) => contract.id !== id));
     } catch (error) {
-      console.log(formatAxiosError(error));
+      toast.error(formatAxiosError(error));
     }
   };
 

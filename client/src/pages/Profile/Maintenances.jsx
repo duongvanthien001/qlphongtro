@@ -93,9 +93,9 @@ export default function Maintenances() {
                         ).toLocaleDateString()}
                       </td>
                       <td>
-                        {maintenance.resolve_date &&
+                        {maintenance.resolved_date &&
                           new Date(
-                            maintenance.resolve_date
+                            maintenance.resolved_date
                           ).toLocaleDateString()}
                       </td>
                     </tr>
