@@ -135,51 +135,74 @@ export default function ListBill() {
             </tr>
           </thead>
           <tbody>
-            {bills.map((bill) => (
-              <tr key={bill.id}>
-                <td>{bill.id}</td>
-                <td>{bill.contracts.rooms.room_number}</td>
-                <td>{bill.contracts.tenants.users.full_name}</td>
-                <td>{formatVnd(bill.room_fee)}</td>
-                <td>{formatVnd(bill.service_fee)}</td>
-                <td>{formatVnd(bill.total_amount)}</td>
-                <td>
-                  {bill.status === "pending" && "Chưa thanh toán"}
-                  {bill.status === "paid" && "Đã thanh toán"}
-                  {bill.status === "partially_paid" && "Đã thanh toán một phần"}
-                  {bill.status === "overdue" && "Quá hạn"}
-                </td>
-                <td>{new Date(bill.due_date).toLocaleDateString("vi")}</td>
-                <td>{new Date(bill.created_at).toLocaleDateString("vi")}</td>
-                <td
-                  style={{
-                    minWidth: 283,
-                  }}
-                >
-                  <div className="d-flex text-nowrap">
-                    <Link to={`/admin/bill/${bill.id}`} className="me-2">
-                      <Button variant="primary">
-                        <FaFileInvoice />
-                        Chi tiết
+            {bills.map((bill) => {
+              const totalPayment = bill.payments.reduce(
+                (acc, payment) => acc + payment.amount,
+                0
+              );
+
+              return (
+                <tr key={bill.id}>
+                  <td>{bill.id}</td>
+                  <td>{bill.contracts.rooms.room_number}</td>
+                  <td>{bill.contracts.tenants.users.full_name}</td>
+                  <td>{formatVnd(bill.room_fee)}</td>
+                  <td>{formatVnd(bill.service_fee)}</td>
+                  <td>{formatVnd(bill.total_amount)}</td>
+                  <td>
+                    {bill.status === "pending" && "Chưa thanh toán"}
+                    {bill.status === "paid" && "Đã thanh toán"}
+                    {bill.status === "partially_paid" &&
+                      `Đã thanh toán một phần (${formatVnd(totalPayment)})`}
+                    {bill.status === "overdue" && "Quá hạn"}
+                  </td>
+                  <td>
+                    {new Date(bill.due_date).toLocaleDateString("vi", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td>
+                    {new Date(bill.created_at).toLocaleDateString("vi", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td
+                    style={{
+                      minWidth: 283,
+                    }}
+                  >
+                    <div className="d-flex text-nowrap">
+                      <Link to={`/admin/bill/${bill.id}`} className="me-2">
+                        <Button variant="primary">
+                          <FaFileInvoice />
+                          Chi tiết
+                        </Button>
+                      </Link>
+                      <Link
+                        to={`/admin/update-bill/${bill.id}`}
+                        className="me-2"
+                      >
+                        <Button variant="warning">
+                          <FaEdit />
+                          Sửa
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="danger"
+                        onClick={(e) => handleDelete(e, bill.id)}
+                      >
+                        <FaTrashAlt />
+                        Xóa
                       </Button>
-                    </Link>
-                    <Link to={`/admin/update-bill/${bill.id}`} className="me-2">
-                      <Button variant="warning">
-                        <FaEdit />
-                        Sửa
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="danger"
-                      onClick={(e) => handleDelete(e, bill.id)}
-                    >
-                      <FaTrashAlt />
-                      Xóa
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </Table>
       )}

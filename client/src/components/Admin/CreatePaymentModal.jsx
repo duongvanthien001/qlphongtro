@@ -40,7 +40,7 @@ export default function CreatePaymentModal({ show, handleClose, bill }) {
         amount: bill.total_amount - total_paid - payment.amount,
         payment_method: "cash",
       });
-      navigate("/admin/list-payment");
+      navigate("/admin/list-bill");
     } catch (error) {
       setError(formatAxiosError(error));
     } finally {

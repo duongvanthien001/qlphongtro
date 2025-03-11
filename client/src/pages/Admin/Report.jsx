@@ -49,19 +49,36 @@ export default function Report() {
 
   const { report } = loaderData;
 
-  const excelBills = bills.map((bill) => ({
-    Phòng: bill.contracts.rooms.room_number,
-    Ngày: new Date(bill.created_at).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }),
-    "Tiền phòng": formatVnd(bill.contracts.rooms.price),
-    "Tiền dịch vụ": formatVnd(bill.service_fee),
-    "Tổng tiền": formatVnd(bill.total_amount),
-    "Trạng thái":
-      bill.status === "pending" ? "Chưa thanh toán" : "Đã thanh toán",
-  }));
+  const excelBills = bills.map((bill) => {
+    const totalPayment = bill.payments.reduce(
+      (acc, payment) => acc + payment.amount,
+      0
+    );
+
+    let status = "";
+    if (bill.status === "pending") {
+      status = "Chưa thanh toán";
+    } else if (bill.status === "paid") {
+      status = "Đã thanh toán";
+    } else if (bill.status === "partially_paid") {
+      status = `Đã thanh toán một phần (${formatVnd(totalPayment)})`;
+    } else if (bill.status === "overdue") {
+      status = "Quá hạn";
+    }
+
+    return {
+      Phòng: bill.contracts.rooms.room_number,
+      Ngày: new Date(bill.created_at).toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+      "Tiền phòng": formatVnd(bill.contracts.rooms.price),
+      "Tiền dịch vụ": formatVnd(bill.service_fee),
+      "Tổng tiền": formatVnd(bill.total_amount),
+      "Trạng thái": status,
+    };
+  });
 
   const years = Array.from(
     { length: currentYear - (report.oldestYearOfBill - 1) },
@@ -153,6 +170,10 @@ export default function Report() {
         </thead>
         <tbody>
           {bills.map((bill) => {
+            const totalPayment = bill.payments.reduce(
+              (acc, payment) => acc + payment.amount,
+              0
+            );
             return (
               <tr key={bill.id}>
                 <td>{bill.contracts.rooms.room_number}</td>
@@ -169,7 +190,8 @@ export default function Report() {
                 <td>
                   {bill.status === "pending" && "Chưa thanh toán"}
                   {bill.status === "paid" && "Đã thanh toán"}
-                  {bill.status === "partially_paid" && "Đã thanh toán một phần"}
+                  {bill.status === "partially_paid" &&
+                    `Đã thanh toán một phần (${formatVnd(totalPayment)})`}
                   {bill.status === "overdue" && "Quá hạn"}
                 </td>
               </tr>
