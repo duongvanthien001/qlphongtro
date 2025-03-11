@@ -51,7 +51,11 @@ export default function Report() {
 
   const excelBills = bills.map((bill) => ({
     Phòng: bill.contracts.rooms.room_number,
-    Ngày: new Date(bill.created_at).toLocaleDateString(),
+    Ngày: new Date(bill.created_at).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
     "Tiền phòng": formatVnd(bill.contracts.rooms.price),
     "Tiền dịch vụ": formatVnd(bill.service_fee),
     "Tổng tiền": formatVnd(bill.total_amount),
@@ -152,7 +156,13 @@ export default function Report() {
             return (
               <tr key={bill.id}>
                 <td>{bill.contracts.rooms.room_number}</td>
-                <td>{new Date(bill.created_at).toLocaleDateString()}</td>
+                <td>
+                  {new Date(bill.created_at).toLocaleDateString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                </td>
                 <td>{formatVnd(bill.contracts.rooms.price)}</td>
                 <td>{formatVnd(bill.service_fee)}</td>
                 <td>{formatVnd(bill.total_amount)}</td>

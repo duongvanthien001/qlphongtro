@@ -55,6 +55,9 @@ const updateSchema = Joi.object({
     .messages({
       "any.only": "Trạng thái hóa đơn không hợp lệ",
     }),
+  created_at: Joi.date().optional().messages({
+    "date.base": "Ngày tạo hóa đơn không hợp lệ",
+  }),
 });
 
 const billController = {

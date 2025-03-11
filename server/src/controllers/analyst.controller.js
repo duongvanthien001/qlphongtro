@@ -37,7 +37,7 @@ const analystController = {
     });
 
     const totalDebt =
-      await prisma.$queryRaw`SELECT SUM(total_amount - p.total_payment) as total FROM bills, (SELECT COALESCE(SUM(amount), 0) as total_payment FROM payments) p`;
+      await prisma.$queryRaw`SELECT SUM(b.total_amount - COALESCE(p.total_payment,0)) total FROM bills b LEFT JOIN (SELECT bill_id, SUM(amount) total_payment FROM payments GROUP BY bill_id) p ON b.id = p.bill_id`;
 
     const totalElectricity =
       await prisma.$queryRaw`SELECT SUM(s.unit_price * su.usage_amount) as total FROM services s LEFT JOIN service_usage su ON s.id = su.service_id WHERE s.name = 'Điện'`;
