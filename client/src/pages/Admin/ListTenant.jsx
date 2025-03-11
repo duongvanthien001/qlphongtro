@@ -36,7 +36,7 @@ const ListTenant = () => {
         order,
         search,
         limit,
-        status: "tenant",
+        role: "tenant",
       });
       setUsers(data.users);
       setPage(data.page);

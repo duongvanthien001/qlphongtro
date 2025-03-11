@@ -44,7 +44,7 @@ const createSchema = Joi.object({
       .messages({ "any.required": "CCCD/CMND không được để trống" }),
     otherwise: Joi.string().optional(),
   }),
-  address: Joi.string().optional(),
+  address: Joi.string().optional().allow(""),
 });
 
 const getListSchema = querySchema.keys({
