@@ -100,8 +100,6 @@ const ListTenant = () => {
             <option value="email:desc">Email: Z-A</option>
             <option value="phone:asc">Số điện thoại: Tăng dần</option>
             <option value="phone:desc">Số điện thoại: Giảm dần</option>
-            <option value="date_of_birth:asc">Tuổi: Tăng dần</option>
-            <option value="date_of_birth:desc">Tuổi: Giảm dần</option>
           </Form.Select>
         </Col>
         <Col xs={3} className="ms-auto d-flex justify-content-end">
