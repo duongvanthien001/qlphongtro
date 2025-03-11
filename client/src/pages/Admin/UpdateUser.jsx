@@ -55,6 +55,10 @@ export default function UpdateUser() {
       delete values.address;
     }
 
+    if (!values.password) {
+      delete values.password;
+    }
+
     try {
       setIsSubmitting(true);
       const { message } = await updateUser(loaderUser.id, values);

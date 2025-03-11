@@ -68,7 +68,10 @@ const router = createBrowserRouter([
         path: "",
         element: <HomeLayout />,
         loader: async () => {
-          if (localStorage.getItem("token")) {
+          if (
+            localStorage.getItem("token") ||
+            localStorage.getItem("refreshToken")
+          ) {
             const user = await getCurrentUser();
             return user;
           }
