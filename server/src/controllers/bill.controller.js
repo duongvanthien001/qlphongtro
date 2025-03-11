@@ -313,6 +313,14 @@ const billController = {
       data: value,
     });
 
+    if (bill.status === "pending") {
+      await prisma.payments.deleteMany({
+        where: {
+          bill_id: id,
+        },
+      });
+    }
+
     res.json({
       message: "Cập nhật hóa đơn thành công",
       bill,

@@ -59,7 +59,9 @@ const analystController = {
       totalDebt: totalDebt[0].total,
       totalElectricity: totalElectricity[0].total,
       totalWater: totalWater[0].total,
-      oldestYearOfBill: oldestYearOfBill.created_at.getFullYear(),
+      oldestYearOfBill: oldestYearOfBill
+        ? oldestYearOfBill.created_at.getFullYear()
+        : new Date().getFullYear(),
     });
   },
 };
