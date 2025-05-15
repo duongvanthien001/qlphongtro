@@ -1,0 +1,32 @@
+/* Header.css */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.nav-items {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-brand {
+  margin-left: 400px;
+}
+
+button {
+  display: flex;
+  align-items: center;
+}
+
+button svg {
+  margin-right: 5px;
+}

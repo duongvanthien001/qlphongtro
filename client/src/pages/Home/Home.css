@@ -1,0 +1,162 @@
+.main {
+  color: white;
+  height: 100vh;
+}
+
+.main-text {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.main-text::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.main-text video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.main-text .main-text-content {
+  position: absolute;
+  left: 0;
+  bottom: 10%;
+  width: 100%;
+  z-index: 1;
+}
+
+.main-text h1 {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.main-text p {
+  font-size: 16px;
+  margin-top: 10px;
+  margin-bottom: 0;
+  max-width: 700px;
+}
+
+/* Reviews Section */
+.reviews {
+  padding: 80px 20px;
+  background-color: #ffffff;
+}
+
+.reviews h2 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 40px;
+}
+
+.review-cards {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media screen and (max-width: 992px) {
+  .review-cards {
+    gap: 20px;
+    flex-direction: column;
+  }
+}
+
+.review-card {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  margin-right: 50px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.review-card:last-child {
+  margin-right: 0;
+}
+
+.review-card .top {
+  padding: 20px;
+  margin-bottom: auto;
+}
+
+.review-card .bottom {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  background-color: #e5f1ff;
+}
+
+.bottom .icon {
+  margin-right: 20px;
+  color: #db6002;
+}
+
+.rating {
+  margin-bottom: 12px;
+}
+
+.review-card h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.review-card p {
+  color: #555;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* Footer Section */
+.footer {
+  background-color: black;
+  color: white;
+  padding: 40px;
+}
+
+.footer-links,
+.footer-social {
+  width: 50%;
+}
+
+.footer-links h4,
+.footer-social h4,
+.footer-download h4 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.footer-links ul,
+.footer-social ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.footer-links li,
+.footer-social li {
+  margin: 5px 0;
+}
+
+.footer-links li:last-child,
+.footer-social li:last-child {
+  margin-bottom: 0;
+}
+
+.footer-links a,
+.footer-social a {
+  text-decoration: none;
+  color: white;
+}

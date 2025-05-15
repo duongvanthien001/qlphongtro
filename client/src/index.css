@@ -1,0 +1,72 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.nav-link:hover {
+  color: white;
+}
+
+.text-inherit {
+  color: inherit;
+}
+
+.fade-enter {
+  opacity: 0;
+  z-index: 1;
+}
+
+.fade-enter.fade-enter-active {
+  opacity: 1;
+  /*
+  Duration has been increased by 4x from the original version for demo purposes.
+  */
+  transition: opacity 1000ms ease-in;
+}
+
+@media screen and (max-width: 1024px) {
+  .sidebar-admin-container {
+    visibility: hidden;
+    transition: ease-in-out 0.3s;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-admin-container .sidebar-admin {
+    transform: translateX(-100%);
+    width: 250px;
+    transition: ease-in-out 0.3s;
+  }
+
+  .sidebar-admin-container.active {
+    visibility: visible;
+  }
+
+  .sidebar-admin-container.active .sidebar-admin {
+    transform: translateX(0);
+  }
+
+  .admin-content {
+    padding-top: 56px;
+  }
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media print {
+  .no-print {
+    display: none;
+  }
+}

@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model bills {
+  id            Int             @id @default(autoincrement())
+  contract_id   Int?
+  room_fee      Decimal         @db.Decimal(10, 2)
+  service_fee   Decimal?        @default(0.00) @db.Decimal(10, 2)
+  total_amount  Decimal         @db.Decimal(10, 2)
+  status        bills_status?   @default(pending)
+  due_date      DateTime        @db.Date
+  created_at    DateTime        @default(now()) @db.Timestamp(0)
+  contracts     contracts?      @relation(fields: [contract_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bills_ibfk_1")
+  payments      payments[]
+  service_usage service_usage[]
+
+  @@index([contract_id], map: "contract_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model contracts {
+  id         Int               @id @default(autoincrement())
+  room_id    Int?
+  tenant_id  Int?
+  start_date DateTime          @db.Date
+  end_date   DateTime          @db.Date
+  deposit    Decimal           @db.Decimal(10, 2)
+  status     contracts_status? @default(active)
+  bills      bills[]
+  rooms      rooms?            @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "contracts_ibfk_1")
+  tenants    tenants?          @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "contracts_ibfk_2")
+
+  @@index([room_id], map: "room_id")
+  @@index([tenant_id], map: "tenant_id")
+}
+
+model maintenances {
+  id            Int                  @id @default(autoincrement())
+  room_id       Int?
+  tenant_id     Int?
+  description   String               @db.Text
+  status        maintenances_status? @default(pending)
+  request_date  DateTime             @default(now()) @db.Timestamp(0)
+  resolved_date DateTime?            @db.Timestamp(0)
+  rooms         rooms?               @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "maintenances_ibfk_1")
+  tenants       tenants?             @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "maintenances_ibfk_2")
+
+  @@index([room_id], map: "room_id")
+  @@index([tenant_id], map: "tenant_id")
+}
+
+model payments {
+  id             Int                     @id @default(autoincrement())
+  bill_id        Int?
+  amount         Decimal                 @db.Decimal(10, 2)
+  payment_date   DateTime                @default(now()) @db.Timestamp(0)
+  payment_method payments_payment_method
+  bills          bills?                  @relation(fields: [bill_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_1")
+
+  @@index([bill_id], map: "bill_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model rooms {
+  id            Int             @id @default(autoincrement())
+  room_number   String          @unique(map: "room_number") @db.VarChar(20)
+  area          Float           @db.Float
+  price         Decimal         @db.Decimal(10, 2)
+  status        rooms_status?   @default(available)
+  description   String?         @db.Text
+  contracts     contracts[]
+  maintenances  maintenances[]
+  service_usage service_usage[]
+}
+
+model service_usage {
+  id            Int      @id @default(autoincrement())
+  bill_id       Int
+  service_id    Int
+  usage_amount  Decimal  @db.Decimal(10, 2)
+  recorded_date DateTime @default(now()) @db.Timestamp(0)
+  rooms         rooms    @relation(fields: [bill_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_1")
+  services      services @relation(fields: [service_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_2")
+  bills         bills    @relation(fields: [bill_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "service_usage_ibfk_3")
+
+  @@index([bill_id], map: "bill_id")
+  @@index([service_id], map: "service_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model services {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(50)
+  unit_price    Decimal         @db.Decimal(10, 2)
+  unit          String          @db.VarChar(20)
+  type          services_type
+  service_usage service_usage[]
+}
+
+model tenants {
+  id            Int            @id @default(autoincrement())
+  id_card       String         @unique(map: "id_card") @db.VarChar(20)
+  address       String?        @db.Text
+  user_id       Int?           @unique(map: "user_id")
+  date_of_birth DateTime?      @db.Date
+  contracts     contracts[]
+  maintenances  maintenances[]
+  users         users?         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tenants_ibfk_1")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id         Int        @id @default(autoincrement())
+  username   String     @unique(map: "username") @db.VarChar(50)
+  password   String     @db.VarChar(255)
+  role       users_role
+  created_at DateTime   @default(now()) @db.Timestamp(0)
+  email      String?    @unique(map: "email") @db.VarChar(100)
+  full_name  String     @db.VarChar(100)
+  phone      String     @db.VarChar(15)
+  tenants    tenants?
+}
+
+enum users_role {
+  admin
+  staff
+  tenant
+}
+
+enum maintenances_status {
+  pending
+  in_progress
+  completed
+}
+
+enum payments_payment_method {
+  cash
+  bank_transfer
+}
+
+enum rooms_status {
+  available
+  occupied
+  maintenance
+}
+
+enum services_type {
+  electricity
+  water
+  internet
+  other
+}
+
+enum bills_status {
+  pending
+  paid
+  partially_paid
+  overdue
+}
+
+enum contracts_status {
+  active
+  expired
+  terminated
+}
